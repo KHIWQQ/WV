@@ -47,5 +47,9 @@ next-env.d.ts
 # trigger.dev
 .trigger/
 
+# supabase cli local state
+supabase/.temp/
+supabase/.branches/
+
 # sentry
 .sentryclirc
