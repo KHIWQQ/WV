@@ -1,0 +1,37 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    # Skip Claude's own PRs to avoid loops, and skip drafts
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login != 'claude[bot]' &&
+      !contains(github.event.pull_request.labels.*.name, 'skip-review')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this PR for:
+            - Correctness: bugs, edge cases, race conditions
+            - Security: auth checks, input validation, secret leakage
+            - Project conventions from CLAUDE.md (soft delete, audit logging,
+              Pino logger usage, premium gate, /api/v1routing)
+            - Test coverage for new logic
+            Be concise. Skip nitpicks. Only post comments where it matters.
+          claude_args: "--max-turns 8 --model claude-sonnet-4-6"

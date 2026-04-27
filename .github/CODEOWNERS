@@ -1,0 +1,11 @@
+# Default reviewer for everything
+*                          @khiwqq
+
+# Migrations need a human even if Claude opened the PR
+/supabase/migrations/      @khiwqq
+
+# Sentry / Trigger / billing config — never auto-merge
+/sentry.*.config.ts        @khiwqq
+/trigger.config.ts         @khiwqq
+/src/trigger/              @khiwqq
+/src/lib/subscription/     @khiwqq
