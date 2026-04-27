@@ -32,5 +32,5 @@ jobs:
         with:
           # OAuth token from Claude Pro/Max subscription.
           # Generate with: `claude setup-token` (1-year validity).
-          anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: "--max-turns 25 --model claude-sonnet-4-6"
