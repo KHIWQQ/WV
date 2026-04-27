@@ -58,3 +58,15 @@ Always run `pnpm lint && pnpm exec tsc --noEmit && pnpm test` before claiming a 
 - PR description must list user-visible changes + risk level + how to test
 - For DB changes: include the migration file AND any code that depends on it in the same PR
 - Don't bump dependency majors as part of an unrelated PR
+
+## ⚠️ Auto-merge is enabled
+
+Every PR you open is **auto-merged to main** as soon as CI passes (lint + typecheck + tests + build). After merge, Vercel deploys to production within ~2 minutes — there is no human gate.
+
+**This means:**
+- Run `pnpm test` and `pnpm exec tsc --noEmit` locally before committing. A red CI doesn't just block merge — it wastes a deploy slot and clutters Actions history.
+- For risky changes (auth, billing, schema, market gateway, anything touching real money), add the label `no-auto-merge` to the PR. The user will review manually.
+- If you're uncertain about correctness, open the PR as a **draft** instead of ready-for-review. Drafts are skipped by auto-merge.
+- Files under `.github/workflows/`, `supabase/migrations/`, `src/lib/subscription/`, `src/trigger/`, and Sentry/Trigger configs are CODEOWNERS-gated — those PRs will block auto-merge until the user approves, by design.
+
+**Rollback path** (if your change breaks production): user reverts via Vercel dashboard → Deployments → Promote previous build. Don't try to "fix forward" a broken prod with another auto-merged PR — that compounds the problem.
