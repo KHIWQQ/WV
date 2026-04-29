@@ -1,6 +1,6 @@
 import { schedules, logger } from "@trigger.dev/sdk/v3";
 import { serviceClient } from "./_supabase";
-import { yahooProvider } from "@/lib/market";
+import { yahooProvider, thaiGoldProvider, isThaiGoldSymbol } from "@/lib/market";
 import { getExchangeRate } from "@/lib/market/forex";
 
 interface QuoteEntry {
@@ -42,8 +42,27 @@ export const syncPricesTask = schedules.task({
     const symbols = Array.from(new Set(assets.map((a) => a.symbol!).filter(Boolean)));
     const quoteMap = new Map<string, QuoteEntry>();
 
-    for (let i = 0; i < symbols.length; i += 20) {
-      const batch = symbols.slice(i, i + 20);
+    // Thai gold synthetic symbols don't exist on Yahoo — split off and
+    // route to the dedicated provider (one upstream call covers all 4).
+    const goldSymbols = symbols.filter(isThaiGoldSymbol);
+    const yahooSymbols = symbols.filter((s) => !isThaiGoldSymbol(s));
+
+    if (goldSymbols.length > 0) {
+      try {
+        const quotes = await thaiGoldProvider.quote(goldSymbols);
+        for (const q of quotes) {
+          quoteMap.set(q.symbol, {
+            price: q.price,
+            currency: (q.currency || "THB").toUpperCase(),
+          });
+        }
+      } catch (e) {
+        logger.warn("Thai gold fetch failed", { goldSymbols, err: String(e) });
+      }
+    }
+
+    for (let i = 0; i < yahooSymbols.length; i += 20) {
+      const batch = yahooSymbols.slice(i, i + 20);
       try {
         const quotes = await yahooProvider.quote(batch);
         for (const q of quotes) {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { yahooProvider } from "@/lib/market";
+import { yahooProvider, thaiGoldProvider, isThaiGoldSymbol } from "@/lib/market";
 import { getExchangeRate } from "@/lib/market/forex";
 import { logAudit } from "@/lib/audit";
 import { logger } from "@/lib/logger";
@@ -60,10 +60,30 @@ export async function syncAssetPrices(): Promise<SyncResult> {
     return { synced: 0, failed: 0, skipped: 0 };
   }
 
-  // Fetch quotes (preserve quote currency, not just price)
+  // Fetch quotes (preserve quote currency, not just price).
+  // Thai gold synthetic symbols don't exist on Yahoo, so route them to the
+  // Thai gold provider separately. All other tickers go to Yahoo in batches.
   const allQuotes = new Map<string, QuoteEntry>();
-  for (let i = 0; i < symbolsToFetch.length; i += 20) {
-    const batch = symbolsToFetch.slice(i, i + 20);
+
+  const goldSymbols = symbolsToFetch.filter(isThaiGoldSymbol);
+  const yahooSymbols = symbolsToFetch.filter((s) => !isThaiGoldSymbol(s));
+
+  if (goldSymbols.length > 0) {
+    try {
+      const quotes = await thaiGoldProvider.quote(goldSymbols);
+      for (const q of quotes) {
+        allQuotes.set(q.symbol, {
+          price: q.price,
+          currency: (q.currency || "THB").toUpperCase(),
+        });
+      }
+    } catch (e) {
+      logger.warn({ err: e, goldSymbols }, "sync-prices: thai-gold fetch failed");
+    }
+  }
+
+  for (let i = 0; i < yahooSymbols.length; i += 20) {
+    const batch = yahooSymbols.slice(i, i + 20);
     try {
       const quotes = await yahooProvider.quote(batch);
       for (const q of quotes) {

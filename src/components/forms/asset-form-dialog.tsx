@@ -250,6 +250,53 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             ) : (
               <Input {...register("symbol")} placeholder={t.assets.symbolExample} />
             )}
+            {category === "gold" && (
+              <div className="space-y-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs">
+                <p className="font-medium text-amber-700 dark:text-amber-300">
+                  💡 ทองคำไทย 96.5% — เลือกราคาที่จะใช้ track
+                </p>
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  หน่วย: <b>บาททอง</b> (1 บาท ≈ 15.244 g) — กรอกจำนวนเป็นบาททอง เช่น &quot;5&quot; = 5 บาททอง<br />
+                  ราคาดึงจาก goldtraders.or.th อัปเดตทุก 5 นาที
+                </p>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { sym: "XAUTH-BAR-SELL", label: "แท่ง 96.5% (ขาย)" },
+                    { sym: "XAUTH-BAR-BUY", label: "แท่ง 96.5% (รับซื้อ)" },
+                    { sym: "XAUTH-ORN-SELL", label: "รูปพรรณ (ขาย)" },
+                    { sym: "XAUTH-ORN-BUY", label: "รูปพรรณ (รับซื้อ)" },
+                  ].map((opt) => (
+                    <Button
+                      key={opt.sym}
+                      type="button"
+                      variant={symbol === opt.sym ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 text-[11px]"
+                      onClick={async () => {
+                        setValue("symbol", opt.sym);
+                        setValue("currency", "THB", { shouldValidate: true });
+                        setValue("is_auto_update", true);
+                        try {
+                          const res = await fetch(
+                            `/api/v1/market/quote?symbols=${encodeURIComponent(opt.sym)}`
+                          );
+                          const data = await res.json();
+                          const price = data.quotes?.[0]?.price;
+                          if (typeof price === "number" && price > 0) {
+                            setValue("current_price", price);
+                            if (quantity) setValue("current_value", quantity * price);
+                          }
+                        } catch {
+                          // Price fetch failed silently — user can still save
+                        }
+                      }}
+                    >
+                      {opt.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {showSymbolSearch && (
