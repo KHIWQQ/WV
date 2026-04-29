@@ -20,7 +20,7 @@ export function StatCardsGrid({ stats }: Props) {
         value={formatTHB(stats.netWorth)}
         changeType="neutral"
         icon={TrendingUp}
-        iconColor="text-navy"
+        iconColor="text-navy dark:text-navy-200"
       />
       <StatCard
         title={t.dashboard.totalAssets}
@@ -41,7 +41,7 @@ export function StatCardsGrid({ stats }: Props) {
         value={formatTHB(stats.monthlyIncome)}
         changeType="neutral"
         icon={ArrowLeftRight}
-        iconColor="text-blue-600"
+        iconColor="text-blue-600 dark:text-blue-400"
       />
     </div>
   );
