@@ -12,6 +12,35 @@ export function formatTHB(amount: number): string {
   return thbFormatter.format(amount);
 }
 
+const currencyFormatters = new Map<string, Intl.NumberFormat>();
+
+/**
+ * Format an amount in any supported currency. Uses Intl.NumberFormat under
+ * the hood so the symbol/grouping match the currency's locale. Defaults to
+ * THB if the currency is missing or unrecognized.
+ */
+export function formatCurrency(amount: number, currency: string | null | undefined): string {
+  const cur = (currency ?? "THB").toUpperCase();
+  if (cur === "THB") return formatTHB(amount);
+
+  let formatter = currencyFormatters.get(cur);
+  if (!formatter) {
+    try {
+      formatter = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: cur,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+      currencyFormatters.set(cur, formatter);
+    } catch {
+      // Unknown currency code → fall back to plain number with code suffix
+      return `${formatNumber(amount, 2)} ${cur}`;
+    }
+  }
+  return formatter.format(amount);
+}
+
 const numberFormatters = new Map<number, Intl.NumberFormat>();
 
 function getNumberFormatter(decimals: number): Intl.NumberFormat {

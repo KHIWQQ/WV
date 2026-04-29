@@ -44,10 +44,14 @@ const EMPTY_DEFAULTS: AssetSchemaType = {
   cost_basis: 0,
   current_price: 0,
   current_value: 0,
+  currency: "THB",
   country_code: "TH",
   is_auto_update: false,
   notes: "",
 };
+
+// Currencies the FX layer can convert. Keep in sync with src/lib/market/forex.ts
+const SUPPORTED_CURRENCIES = ["THB", "USD", "EUR", "GBP", "JPY", "CNY"] as const;
 
 export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogProps) {
   const { t } = useTranslation();
@@ -80,6 +84,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             cost_basis: asset.cost_basis,
             current_price: asset.current_price,
             current_value: asset.current_value,
+            currency: asset.currency || "THB",
             country_code: asset.country_code || "TH",
             is_auto_update: asset.is_auto_update,
             notes: asset.notes ?? "",
@@ -92,6 +97,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
   const category = watch("category");
   const symbol = watch("symbol");
   const countryCode = watch("country_code");
+  const currency = watch("currency") || "THB";
   const isAutoUpdate = watch("is_auto_update");
   const quantity = watch("quantity");
 
@@ -216,6 +222,33 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             </div>
           )}
 
+          <div className="space-y-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+            <Label className="flex items-center gap-2">
+              สกุลเงินที่ใช้ track
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono">
+                {currency}
+              </span>
+            </Label>
+            <Select
+              value={currency}
+              onValueChange={(val) => setValue("currency", val, { shouldValidate: true })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c} {c === "THB" && "(ค่าเริ่มต้น)"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              💡 สกุลที่ broker เก็บ asset นี้ — ใส่ต้นทุน/มูลค่าเป็นสกุลนี้ ระบบจะแปลงเป็น THB ตอนรวมพอร์ต
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t.assets.quantity}</Label>
@@ -225,7 +258,9 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               )}
             </div>
             <div className="space-y-2">
-              <Label>{t.assets.totalCost}</Label>
+              <Label>
+                {t.assets.totalCost} <span className="text-muted-foreground">({currency})</span>
+              </Label>
               <Input type="number" step="any" {...register("cost_basis", { valueAsNumber: true })} />
               {errors.cost_basis && (
                 <p className="text-xs text-red-600">{errors.cost_basis.message}</p>
@@ -235,14 +270,18 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>{t.assets.currentPriceUnit}</Label>
+              <Label>
+                {t.assets.currentPriceUnit} <span className="text-muted-foreground">({currency})</span>
+              </Label>
               <Input type="number" step="any" {...register("current_price", { valueAsNumber: true })} />
               {errors.current_price && (
                 <p className="text-xs text-red-600">{errors.current_price.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>{t.assets.totalValue}</Label>
+              <Label>
+                {t.assets.totalValue} <span className="text-muted-foreground">({currency})</span>
+              </Label>
               <Input type="number" step="any" {...register("current_value", { valueAsNumber: true })} />
               {errors.current_value && (
                 <p className="text-xs text-red-600">{errors.current_value.message}</p>

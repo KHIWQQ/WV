@@ -1,4 +1,4 @@
-import { formatTHB, formatNumber, formatPercent } from "./format";
+import { formatTHB, formatNumber, formatPercent, formatCurrency } from "./format";
 
 describe("formatTHB", () => {
   it("formats positive integers with the THB symbol", () => {
@@ -36,5 +36,33 @@ describe("formatPercent", () => {
 
   it("supports custom decimals", () => {
     expect(formatPercent(1.2345, 3)).toBe("+1.234%");
+  });
+});
+
+describe("formatCurrency", () => {
+  it("formats THB through formatTHB", () => {
+    expect(formatCurrency(1000, "THB")).toBe(formatTHB(1000));
+  });
+
+  it("formats USD with $ symbol", () => {
+    expect(formatCurrency(1500, "USD")).toMatch(/\$/);
+    expect(formatCurrency(1500, "USD")).toMatch(/1,500/);
+  });
+
+  it("normalizes case", () => {
+    expect(formatCurrency(100, "usd")).toBe(formatCurrency(100, "USD"));
+  });
+
+  it("defaults to THB when currency missing", () => {
+    expect(formatCurrency(500, null)).toBe(formatTHB(500));
+    expect(formatCurrency(500, undefined)).toBe(formatTHB(500));
+  });
+
+  it("falls back gracefully for unknown currency", () => {
+    // Intl is lenient and accepts arbitrary 3-letter codes — just make
+    // sure we don't throw and the number survives.
+    const out = formatCurrency(123.45, "ZZZ");
+    expect(typeof out).toBe("string");
+    expect(out).toMatch(/123/);
   });
 });
