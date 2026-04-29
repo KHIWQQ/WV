@@ -3,6 +3,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { AppRole } from "@/types";
+import { logger } from "@/lib/logger";
+import { prefetchFxRates, convertToHome } from "@/lib/currency/aggregate";
 
 // Admin Client with Service Role Key to bypass RLS
 function getAdminSupabase() {
@@ -112,12 +114,12 @@ export async function getUsersList() {
       email: authMap.get(p.id) || "No Email",
     }));
 
-    return { 
-      success: true, 
-      users: usersWithEmail 
+    return {
+      success: true,
+      users: usersWithEmail
     };
   } catch (error) {
-    console.error("Error fetching users list:", error);
+    logger.error({ err: error }, "admin: fetch users list failed");
     return { success: false, error: "Failed to fetch users" };
   }
 }
@@ -142,7 +144,7 @@ export async function updateUserRole(userId: string, newRole: AppRole) {
 
     return { success: true };
   } catch (error) {
-    console.error("Error updating user role:", error);
+    logger.error({ err: error }, "admin: update user role failed");
     return { success: false, error: "Failed to update role" };
   }
 }
@@ -161,7 +163,7 @@ export async function updateUserSubscription(userId: string, newTier: 'free' | '
     
     return { success: true };
   } catch (error) {
-    console.error("Error updating user subscription:", error);
+    logger.error({ err: error }, "admin: update user subscription failed");
     return { success: false, error: "Failed to update subscription" };
   }
 }
@@ -205,14 +207,24 @@ export async function getAdminMetrics() {
       ? `+${Math.round((newThisMonth / previousMonthUsers) * 100)}%`
       : '+100%';
 
-    // 2. Total system assets (use aggregate via sum — fallback to select if sum unavailable)
-    const { data: assetSum, error: assetsError } = await adminClient
+    // 2. Total system assets — sum in THB across mixed currencies.
+    // PostgREST aggregate (`current_value.sum()`) was the prior approach but
+    // it required `db_aggregates_enabled` and silently broke the whole admin
+    // metrics call when unavailable. Pull rows + sum in JS instead, which
+    // also lets us convert each asset to THB before adding (the prod data
+    // has USD/JPY/etc. assets that must not be added to THB raw).
+    const { data: assetRows, error: assetsError } = await adminClient
       .from("assets")
-      .select("current_value.sum()");
+      .select("current_value, currency")
+      .is("deleted_at", null);
 
     if (assetsError) throw assetsError;
 
-    const totalSystemAssetsTracked = (assetSum?.[0] as Record<string, number>)?.sum ?? 0;
+    const fxRates = await prefetchFxRates(assetRows ?? []);
+    const totalSystemAssetsTracked = (assetRows ?? []).reduce(
+      (sum, a) => sum + convertToHome(a.current_value ?? 0, a.currency, fxRates),
+      0
+    );
 
     // Monthly user registration data (last 6 months) — fetch only needed data
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
@@ -250,7 +262,7 @@ export async function getAdminMetrics() {
       }
     };
   } catch (error) {
-    console.error("Error fetching admin metrics:", error);
+    logger.error({ err: error }, "admin: fetch metrics failed");
     return { success: false, error: "Failed to fetch metrics" };
   }
 }
