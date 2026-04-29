@@ -54,7 +54,10 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
         return () => {
             authListener.subscription.unsubscribe();
         };
-    }, [setProfile]);
+        // `supabase` is a useMemo with [] deps → stable reference for the
+        // component lifetime, so listing it here doesn't cause re-runs but
+        // satisfies react-hooks/exhaustive-deps.
+    }, [setProfile, supabase]);
 
     return <>{children}</>;
 }

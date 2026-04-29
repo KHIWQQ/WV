@@ -95,7 +95,7 @@ export default async function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-emerald-500">Online</div>
-                        <p className="text-xs text-muted-foreground">Uptime: 99.9%</p>
+                        <p className="text-xs text-muted-foreground">หน้านี้ render สำเร็จ → server ทำงานอยู่</p>
                     </CardContent>
                 </Card>
             </div>
