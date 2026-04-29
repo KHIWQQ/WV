@@ -1,4 +1,4 @@
-import { convertToHome, sumInHome, groupByCurrency } from "./aggregate";
+import { convertToHome, sumInHome, groupByCurrency, findMissingRates } from "./aggregate";
 
 describe("convertToHome", () => {
   const rates = new Map([
@@ -77,5 +77,54 @@ describe("groupByCurrency", () => {
     const items = [{ currency: undefined, id: "x" }];
     const groups = groupByCurrency(items);
     expect(groups.get("THB")?.map((i) => i.id)).toEqual(["x"]);
+  });
+});
+
+describe("findMissingRates", () => {
+  it("returns empty when every non-home currency has a rate", () => {
+    const rates = new Map([["THB", 1], ["USD", 35], ["JPY", 0.23]]);
+    const items = [
+      { currency: "USD", id: "a" },
+      { currency: "JPY", id: "b" },
+      { currency: "THB", id: "c" },
+    ];
+    expect(findMissingRates(items, rates)).toEqual([]);
+  });
+
+  it("returns currencies with no rate, sorted, deduped", () => {
+    const rates = new Map([["THB", 1], ["USD", 35]]);
+    const items = [
+      { currency: "EUR", id: "a" },
+      { currency: "JPY", id: "b" },
+      { currency: "EUR", id: "c" }, // dup
+      { currency: "USD", id: "d" }, // present
+    ];
+    expect(findMissingRates(items, rates)).toEqual(["EUR", "JPY"]);
+  });
+
+  it("ignores items in the home currency", () => {
+    const rates = new Map([["THB", 1]]);
+    const items = [
+      { currency: "THB", id: "a" },
+      { currency: null, id: "b" }, // null → home
+      { currency: undefined, id: "c" }, // undefined → home
+    ];
+    expect(findMissingRates(items, rates)).toEqual([]);
+  });
+
+  it("normalizes currency case before checking", () => {
+    const rates = new Map([["THB", 1], ["USD", 35]]);
+    const items = [{ currency: "usd", id: "a" }, { currency: "eur", id: "b" }];
+    expect(findMissingRates(items, rates)).toEqual(["EUR"]);
+  });
+
+  it("supports a custom home currency", () => {
+    const rates = new Map([["USD", 1], ["EUR", 1.1]]);
+    const items = [
+      { currency: "USD", id: "a" },
+      { currency: "THB", id: "b" }, // missing
+      { currency: "EUR", id: "c" },
+    ];
+    expect(findMissingRates(items, rates, "USD")).toEqual(["THB"]);
   });
 });

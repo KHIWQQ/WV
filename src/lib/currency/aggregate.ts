@@ -46,6 +46,27 @@ export async function prefetchFxRates(
 }
 
 /**
+ * Inspect a set of items against a rate map and return the list of currencies
+ * we couldn't fetch a rate for. `convertToHome` silently falls back to 1:1 in
+ * that case (correctly, so partial data still renders), but the caller usually
+ * wants to flag the result to the user — sum of "5,000 THB + 100 USD" sitting
+ * on the dashboard as "5,100 THB" is misleading without that signal.
+ */
+export function findMissingRates<T extends { currency?: string | null }>(
+  items: T[],
+  rates: Map<string, number>,
+  homeCurrency: string = HOME_CURRENCY
+): string[] {
+  const home = homeCurrency.toUpperCase();
+  const missing = new Set<string>();
+  for (const item of items) {
+    const cur = (item.currency ?? home).toUpperCase();
+    if (cur !== home && !rates.has(cur)) missing.add(cur);
+  }
+  return Array.from(missing).sort();
+}
+
+/**
  * Convert one amount to home currency using a pre-fetched rate map.
  * Falls back to 1:1 if the rate is unavailable (logged in prefetch).
  */

@@ -77,7 +77,13 @@ export default async function AdminDashboardPage() {
                                 <div className="text-2xl font-bold">
                                     {success ? formatTHB(metrics?.totalSystemAssetsTracked || 0) : "-"}
                                 </div>
-                                <p className="text-xs text-emerald-500 font-medium">Aggregated Data</p>
+                                {success && metrics?.missingFxCurrencies && metrics.missingFxCurrencies.length > 0 ? (
+                                    <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                                        ⚠️ {metrics.missingFxCurrencies.join(", ")} ดึง FX ไม่ได้ — รวมแบบ 1:1
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-emerald-500 font-medium">Aggregated Data</p>
+                                )}
                             </>
                         ) : (
                             <>
