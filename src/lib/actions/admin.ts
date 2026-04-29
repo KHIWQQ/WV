@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { AppRole } from "@/types";
 import { logger } from "@/lib/logger";
+import { logAudit } from "@/lib/audit";
 import { prefetchFxRates, convertToHome } from "@/lib/currency/aggregate";
 
 // Admin Client with Service Role Key to bypass RLS
@@ -135,12 +136,25 @@ export async function updateUserRole(userId: string, newRole: AppRole) {
 
     const adminClient = getAdminSupabase();
 
+    // Read old role first so the audit entry can show before/after.
+    const { data: oldProfile } = await adminClient
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .single();
+    const oldRole = (oldProfile?.role as AppRole | undefined) ?? null;
+
     const { error } = await adminClient
       .from("profiles")
       .update({ role: newRole })
       .eq("id", userId);
 
     if (error) throw error;
+
+    await logAudit("profile.update", "profile", userId, {
+      diff: { role: { from: oldRole, to: newRole } },
+      metadata: { source: "admin-action", actor_id: currentUser.id },
+    });
 
     return { success: true };
   } catch (error) {
@@ -151,8 +165,17 @@ export async function updateUserRole(userId: string, newRole: AppRole) {
 
 export async function updateUserSubscription(userId: string, newTier: 'free' | 'premium') {
   try {
-    await requireStaffForSub();
+    const actor = await requireStaffForSub();
     const adminClient = getAdminSupabase();
+
+    // Read old tier so we can pick upgrade vs downgrade for the audit action
+    // and record before/after in the diff.
+    const { data: oldProfile } = await adminClient
+      .from("profiles")
+      .select("subscription_tier")
+      .eq("id", userId)
+      .single();
+    const oldTier = (oldProfile?.subscription_tier as 'free' | 'premium' | undefined) ?? null;
 
     const { error } = await adminClient
         .from("profiles")
@@ -160,7 +183,16 @@ export async function updateUserSubscription(userId: string, newTier: 'free' | '
         .eq("id", userId);
 
     if (error) throw error;
-    
+
+    const auditAction =
+      oldTier !== "premium" && newTier === "premium"
+        ? "subscription.upgrade"
+        : "subscription.downgrade";
+    await logAudit(auditAction, "subscription", userId, {
+      diff: { subscription_tier: { from: oldTier, to: newTier } },
+      metadata: { source: "admin-action", actor_id: actor.id },
+    });
+
     return { success: true };
   } catch (error) {
     logger.error({ err: error }, "admin: update user subscription failed");

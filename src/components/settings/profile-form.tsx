@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
@@ -120,9 +121,16 @@ export function ProfileForm() {
           className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-border/50 transition-colors hover:border-gold/50"
         >
           {avatarPreview ? (
-            <img
+            <Image
               src={avatarPreview}
               alt="Avatar"
+              width={80}
+              height={80}
+              // unoptimized: avatarPreview is often a blob:/data: URL from
+              // FileReader before upload, which next/image's optimizer can't
+              // process — and the avatar is small (80px) so optimization
+              // would buy little anyway.
+              unoptimized
               className="h-full w-full object-cover"
             />
           ) : (
