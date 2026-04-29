@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { assetSchema } from "@/lib/validations/schemas";
@@ -100,14 +100,53 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
   const currency = watch("currency") || "THB";
   const isAutoUpdate = watch("is_auto_update");
   const quantity = watch("quantity");
+  const costBasis = watch("cost_basis");
+  const currentPrice = watch("current_price");
+
+  // Per-unit purchase price — TRANSIENT form-only field. Not stored in DB
+  // (DB keeps cost_basis as the total). Lets users enter "I bought at ฿32
+  // per share" and the form computes total automatically, instead of the
+  // user mistyping cost_basis as a per-unit price.
+  const [costPerUnit, setCostPerUnit] = useState<number | "">("");
+
+  // When editing an existing asset, derive cost_per_unit from the stored total.
+  useEffect(() => {
+    if (open && asset && asset.quantity > 0 && asset.cost_basis > 0) {
+      setCostPerUnit(asset.cost_basis / asset.quantity);
+    } else if (open && !asset) {
+      setCostPerUnit("");
+    }
+  }, [open, asset]);
 
   // Auto-calculate current_value when price or quantity changes
-  const currentPrice = watch("current_price");
   useEffect(() => {
     if (quantity && currentPrice) {
       setValue("current_value", quantity * currentPrice);
     }
   }, [quantity, currentPrice, setValue]);
+
+  // Auto-calculate cost_basis from cost_per_unit × quantity
+  useEffect(() => {
+    if (typeof costPerUnit === "number" && costPerUnit > 0 && quantity > 0) {
+      setValue("cost_basis", costPerUnit * quantity);
+    }
+  }, [costPerUnit, quantity, setValue]);
+
+  // Anomaly: cost-per-unit drastically different from current price
+  // (e.g., user typed "32" thinking per-unit when stored as total)
+  const showAnomalyWarning =
+    typeof costBasis === "number" &&
+    typeof currentPrice === "number" &&
+    typeof quantity === "number" &&
+    costBasis > 0 &&
+    currentPrice > 0 &&
+    quantity > 0 &&
+    (() => {
+      const cpu = costBasis / quantity;
+      const ratio = cpu / currentPrice;
+      // Flag if cost/unit is < 5% or > 20× current — almost certainly a typo
+      return ratio < 0.05 || ratio > 20;
+    })();
 
   async function onSubmit(data: AssetSchemaType) {
     try {
@@ -249,13 +288,32 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             </p>
           </div>
 
+          <div className="space-y-2">
+            <Label>{t.assets.quantity}</Label>
+            <Input type="number" step="any" {...register("quantity", { valueAsNumber: true })} />
+            {errors.quantity && (
+              <p className="text-xs text-red-600">{errors.quantity.message}</p>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>{t.assets.quantity}</Label>
-              <Input type="number" step="any" {...register("quantity", { valueAsNumber: true })} />
-              {errors.quantity && (
-                <p className="text-xs text-red-600">{errors.quantity.message}</p>
-              )}
+              <Label>
+                ราคาซื้อ/หน่วย <span className="text-muted-foreground">({currency})</span>
+              </Label>
+              <Input
+                type="number"
+                step="any"
+                value={costPerUnit}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCostPerUnit(v === "" ? "" : parseFloat(v));
+                }}
+                placeholder="ราคาที่ซื้อมา 1 หน่วย"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                ระบบจะคูณกับจำนวนเป็นต้นทุนรวม
+              </p>
             </div>
             <div className="space-y-2">
               <Label>
@@ -265,6 +323,9 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               {errors.cost_basis && (
                 <p className="text-xs text-red-600">{errors.cost_basis.message}</p>
               )}
+              <p className="text-[11px] text-muted-foreground">
+                หรือใส่ยอดที่จ่ายจริงทั้งหมด
+              </p>
             </div>
           </div>
 
@@ -288,6 +349,16 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               )}
             </div>
           </div>
+
+          {showAnomalyWarning && (
+            <div className="flex gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
+              <span aria-hidden className="text-amber-500">⚠️</span>
+              <p className="text-amber-700 dark:text-amber-300 leading-snug">
+                ต้นทุน/หน่วย ({(costBasis / quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}) ต่างจากราคาปัจจุบัน/หน่วย ({currentPrice?.toLocaleString()}) มาก —
+                ตรวจสอบว่าใส่ <b>ต้นทุนรวม</b> ถูกหรือยัง (ไม่ใช่ราคาต่อหน่วย)
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>{t.assets.notes}</Label>
