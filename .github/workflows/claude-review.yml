@@ -34,4 +34,7 @@ jobs:
               Pino logger usage, premium gate, /api/v1routing)
             - Test coverage for new logic
             Be concise. Skip nitpicks. Only post comments where it matters.
-          claude_args: "--max-turns 8 --model claude-sonnet-4-6"
+          # 8 was too tight — review agent burned all turns on read+explore
+          # before posting comments on a multi-file PR (~650 line diff).
+          # 25 leaves headroom for medium PRs without runaway cost.
+          claude_args: "--max-turns 25 --model claude-sonnet-4-6"
