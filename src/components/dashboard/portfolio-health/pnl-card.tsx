@@ -60,7 +60,7 @@ export function PnLCard({ pnl }: Props) {
               กำไร/ขาดทุนยังไม่ realize
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
-              คำนวณจาก cost basis × ปริมาณ เทียบกับมูลค่าปัจจุบัน
+              เทียบต้นทุนรวมกับมูลค่ารวมปัจจุบัน
             </p>
           </div>
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-navy">

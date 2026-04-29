@@ -89,8 +89,11 @@ function emptyPnL(): PortfolioPnL {
 }
 
 function calculatePnL(assets: Asset[]): PortfolioPnL {
+  // `cost_basis` and `current_value` are BOTH stored as totals
+  // (verified against asset-form-dialog `t.assets.totalCost` label and
+  // existing /dashboard/assets gain-loss math). Don't multiply by qty.
   const moves: AssetMove[] = assets.map((a) => {
-    const cost = (a.cost_basis ?? 0) * (a.quantity ?? 0);
+    const cost = a.cost_basis ?? 0;
     const value = a.current_value ?? 0;
     const gain = value - cost;
     const returnPct = cost > 0 ? (gain / cost) * 100 : 0;
