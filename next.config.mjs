@@ -1,9 +1,33 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
+// Derive the Supabase storage host from the public URL so avatar
+// images load through next/image without throwing "hostname not configured".
+function supabaseHost() {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!url) return null;
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+const remotePatterns = [];
+const host = supabaseHost();
+if (host) {
+  remotePatterns.push({ protocol: "https", hostname: host, pathname: "/storage/v1/object/**" });
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     instrumentationHook: true,
+  },
+  compress: true,
+  poweredByHeader: false,
+  images: {
+    remotePatterns,
+    formats: ["image/avif", "image/webp"],
   },
 };
 

@@ -24,7 +24,8 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            staleTime: 5 * 60 * 1000,        // 5 min — most dashboard data is fine for this long
+            gcTime: 10 * 60 * 1000,          // 10 min — drop cached pages user navigated away from
             refetchOnWindowFocus: false,
             retry(failureCount, error) {
               if (error instanceof Error && error.message === "Unauthorized") {

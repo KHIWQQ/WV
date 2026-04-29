@@ -17,7 +17,8 @@ export function useMarketSearch(query: string) {
         `/api/v1/market/search?q=${encodeURIComponent(query)}`
       ).then((d) => d.results),
     enabled: query.length >= 1,
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,    // search results barely change minute-to-minute
+    gcTime: 30 * 60_000,
     placeholderData: (prev) => prev,
   });
 }
@@ -44,6 +45,7 @@ export function useMarketHistory(symbol: string, range: TimeRange = "1mo") {
         `/api/v1/market/history?symbol=${encodeURIComponent(symbol)}&range=${range}`
       ).then((d) => d.history),
     enabled: !!symbol,
-    staleTime: 5 * 60_000,
+    staleTime: 10 * 60_000,   // OHLCV doesn't change for 10+ min
+    gcTime: 30 * 60_000,
   });
 }

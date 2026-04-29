@@ -38,6 +38,7 @@ export function SidebarNavItem({
     <Link
       href={item.href}
       onClick={onClose}
+      prefetch
       className={cn(
         "group relative flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
         isStaffVariant
