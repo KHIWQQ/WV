@@ -4,6 +4,7 @@ import {
   StatCardsSkeleton,
   ChartSkeleton,
   ListSkeleton,
+  PortfolioHealthSkeleton,
 } from "@/components/dashboard/skeletons";
 import { StatCardsSection } from "@/components/dashboard/sections/stat-cards-section";
 import { NetWorthSection } from "@/components/dashboard/sections/net-worth-section";
@@ -11,14 +12,28 @@ import { AllocationSection } from "@/components/dashboard/sections/allocation-se
 import { RecentTransactionsSection } from "@/components/dashboard/sections/recent-transactions-section";
 import { WorldMapSection } from "@/components/dashboard/sections/world-map-section";
 import { CashflowSection } from "@/components/dashboard/sections/cashflow-section";
+import {
+  PortfolioWarningsSection,
+  PortfolioHealthSection,
+} from "@/components/dashboard/sections/portfolio-health-section";
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <DashboardTitle />
 
+      {/* Warning banner streams in silently — renders nothing if no warnings,
+          so no skeleton needed */}
+      <Suspense fallback={null}>
+        <PortfolioWarningsSection />
+      </Suspense>
+
       <Suspense fallback={<StatCardsSkeleton />}>
         <StatCardsSection />
+      </Suspense>
+
+      <Suspense fallback={<PortfolioHealthSkeleton />}>
+        <PortfolioHealthSection />
       </Suspense>
 
       <Suspense fallback={<ChartSkeleton height={320} />}>

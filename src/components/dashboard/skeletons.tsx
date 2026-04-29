@@ -87,6 +87,24 @@ export function ListSkeleton({ rows = 5 }: { rows?: number }) {
   );
 }
 
+export function PortfolioHealthSkeleton() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <div key={i} className="rounded-2xl border bg-card p-5 shadow-sm">
+          <Shimmer className="h-5 w-44" />
+          <Shimmer className="mt-2 h-3 w-56" />
+          <Shimmer className="mt-5 h-9 w-40" />
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <Shimmer className="h-12 rounded-lg" />
+            <Shimmer className="h-12 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function TableSkeleton({ rows = 8, cols = 5 }: { rows?: number; cols?: number }) {
   return (
     <div className="rounded-2xl border bg-card p-5 shadow-sm">
