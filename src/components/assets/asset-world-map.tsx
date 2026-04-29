@@ -18,8 +18,9 @@ import {
 } from "@/lib/utils/countries";
 import { Button } from "@/components/ui/button";
 
-const GEO_URL =
-  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+// Served from /public — Vercel CDN gzips it. Avoids per-render CDN fetch
+// (jsdelivr) which was slow + flaky on cold Vercel edges.
+const GEO_URL = "/world-110m.json";
 
 // Color palette for the gradient stops
 const COLORS = {

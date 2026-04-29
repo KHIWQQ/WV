@@ -2,6 +2,7 @@
 
 import { Menu, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -83,10 +84,13 @@ export function Header({ onToggleSidebar }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <button aria-label={t.header.accountSettings} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 overflow-hidden transition-colors hover:border-gold/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50">
               {profile?.avatar_url ? (
-                <img
+                <Image
                   src={profile.avatar_url}
                   alt="Avatar"
+                  width={36}
+                  height={36}
                   className="h-full w-full object-cover"
+                  unoptimized
                 />
               ) : (
                 <span className="flex h-full w-full items-center justify-center bg-gradient-gold text-navy text-sm font-bold">
