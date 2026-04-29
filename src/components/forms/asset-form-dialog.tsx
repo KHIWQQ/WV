@@ -125,7 +125,10 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
     }
   }, [quantity, currentPrice, setValue]);
 
-  // Auto-calculate cost_basis from cost_per_unit × quantity
+  // Quantity changed → keep cost_basis = costPerUnit × quantity so the two stay
+  // in sync. Without this, a user who types total-cost directly and later edits
+  // quantity ends up with a stale cost_basis (the original prod bug:
+  // cost=$75,000 + qty 1→0.1 produced -89.7% loss on auto-tracked BTC).
   useEffect(() => {
     if (typeof costPerUnit === "number" && costPerUnit > 0 && quantity > 0) {
       setValue("cost_basis", costPerUnit * quantity);
@@ -322,7 +325,22 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               <Label>
                 {t.assets.totalCost} <span className="text-muted-foreground">({currency})</span>
               </Label>
-              <Input type="number" step="any" {...register("cost_basis", { valueAsNumber: true })} />
+              <Input
+                type="number"
+                step="any"
+                value={Number.isFinite(costBasis) ? costBasis : ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  const num = v === "" ? 0 : parseFloat(v);
+                  setValue("cost_basis", num, { shouldValidate: true });
+                  // Derive cost-per-unit so subsequent quantity edits keep cost_basis in sync
+                  if (quantity > 0 && num > 0) {
+                    setCostPerUnit(num / quantity);
+                  } else if (num === 0) {
+                    setCostPerUnit("");
+                  }
+                }}
+              />
               {errors.cost_basis && (
                 <p className="text-xs text-red-600">{errors.cost_basis.message}</p>
               )}
@@ -354,12 +372,29 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
           </div>
 
           {showAnomalyWarning && (
-            <div className="flex gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
-              <span aria-hidden className="text-amber-500">⚠️</span>
-              <p className="text-amber-700 dark:text-amber-300 leading-snug">
-                ต้นทุน/หน่วย ({(costBasis / quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}) ต่างจากราคาปัจจุบัน/หน่วย ({currentPrice?.toLocaleString()}) มาก —
-                ตรวจสอบว่าใส่ <b>ต้นทุนรวม</b> ถูกหรือยัง (ไม่ใช่ราคาต่อหน่วย)
-              </p>
+            <div className="space-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
+              <div className="flex gap-2">
+                <span aria-hidden className="text-amber-500">⚠️</span>
+                <p className="text-amber-700 dark:text-amber-300 leading-snug">
+                  ต้นทุน/หน่วย ({(costBasis / quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}) ต่างจากราคาปัจจุบัน/หน่วย ({currentPrice?.toLocaleString()}) มาก —
+                  ตรวจสอบว่าใส่ <b>ต้นทุนรวม</b> ถูกหรือยัง (ไม่ใช่ราคาต่อหน่วย)
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => {
+                  // Re-interpret current cost_basis as per-unit price → recompute total
+                  // (e.g. 75000 entered for 0.1 BTC → cost_per_unit=75000, total=7500)
+                  const reinterpretedPerUnit = costBasis;
+                  setCostPerUnit(reinterpretedPerUnit);
+                  setValue("cost_basis", reinterpretedPerUnit * quantity, { shouldValidate: true });
+                }}
+              >
+                ตีความเป็นราคา/หน่วย → ต้นทุนรวม {(costBasis * quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              </Button>
             </div>
           )}
 

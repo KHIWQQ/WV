@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ASSET_CATEGORIES, getAssetCategoryLabel } from "@/lib/utils/constants";
-import { formatTHB, formatCurrency, formatPercent } from "@/lib/utils/format";
+import { formatTHB, formatCurrency, formatNumber, formatPercent } from "@/lib/utils/format";
 import { useAssets, useDeleteAsset } from "@/hooks/useAssets";
 import { useSyncPrices } from "@/hooks/useSyncPrices";
 import { useFxRates, toHome } from "@/hooks/useFxRates";
@@ -161,6 +161,20 @@ export default function AssetsPage() {
                         ? (gainLossNative / asset.cost_basis) * 100
                         : 0;
                     const valueHome = toHome(asset.current_value, cur, fxRates);
+                    // Flag suspect data: stored cost-per-unit diverges 5× from current price.
+                    // Same threshold as the form anomaly check — usually means user typed
+                    // a per-unit price into the total-cost field.
+                    const costPerUnit =
+                      asset.quantity > 0 ? asset.cost_basis / asset.quantity : 0;
+                    const priceRatio =
+                      asset.current_price > 0 && costPerUnit > 0
+                        ? costPerUnit / asset.current_price
+                        : 1;
+                    const hasCostAnomaly =
+                      asset.is_auto_update &&
+                      asset.current_price > 0 &&
+                      asset.cost_basis > 0 &&
+                      (priceRatio < 0.2 || priceRatio > 5);
                     return (
                       <div
                         key={asset.id}
@@ -182,8 +196,14 @@ export default function AssetsPage() {
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {asset.symbol && <span className="mr-2">{asset.symbol}</span>}
+                            <span className="mr-2">× {formatNumber(asset.quantity, 4).replace(/\.?0+$/, "")}</span>
                             {t.assets.cost} {formatCurrency(asset.cost_basis, cur)}
                           </p>
+                          {hasCostAnomaly && (
+                            <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
+                              ⚠️ ต้นทุน/หน่วย ({formatCurrency(costPerUnit, cur)}) ต่างจากราคาปัจจุบัน ({formatCurrency(asset.current_price, cur)}) มาก — ตรวจสอบข้อมูล
+                            </p>
+                          )}
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
