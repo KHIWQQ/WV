@@ -40,7 +40,7 @@ export function CurrencyExposureCard({ exposure }: Props) {
               สกุลเงินที่ทรัพย์สินคุณถืออยู่
             </p>
           </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-navy">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-navy dark:text-navy-200">
             <Coins className="h-5 w-5" />
           </div>
         </div>
