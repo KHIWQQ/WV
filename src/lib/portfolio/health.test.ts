@@ -47,29 +47,40 @@ describe("calculatePortfolioHealth — empty", () => {
 
 // ─── P&L ──────────────────────────────────────────────────────────────
 
-describe("P&L calculation", () => {
-  it("computes gain when current_value > cost", () => {
+describe("P&L calculation (cost_basis is TOTAL, not per-unit)", () => {
+  it("computes gain when current_value > cost_basis", () => {
     const result = calculatePortfolioHealth([
-      asset({ id: "1", name: "A", category: "stock_us", quantity: 10, cost_basis: 100, current_value: 1500 }),
+      asset({ id: "1", name: "A", category: "stock_us", quantity: 10, cost_basis: 1000, current_value: 1500 }),
     ]);
-    expect(result.pnl.totalCost).toBe(1000); // 10 * 100
+    expect(result.pnl.totalCost).toBe(1000);
     expect(result.pnl.totalValue).toBe(1500);
     expect(result.pnl.totalGain).toBe(500);
     expect(result.pnl.totalReturnPct).toBe(50);
   });
 
-  it("computes loss when current_value < cost", () => {
+  it("computes loss when current_value < cost_basis", () => {
     const result = calculatePortfolioHealth([
-      asset({ id: "1", name: "A", category: "stock_us", quantity: 5, cost_basis: 200, current_value: 800 }),
+      asset({ id: "1", name: "A", category: "stock_us", quantity: 5, cost_basis: 1000, current_value: 800 }),
     ]);
     expect(result.pnl.totalGain).toBe(-200);
     expect(result.pnl.totalReturnPct).toBe(-20);
   });
 
+  it("ignores quantity entirely (it's already baked into cost_basis)", () => {
+    const a = calculatePortfolioHealth([
+      asset({ id: "1", name: "A", category: "stock_us", quantity: 1, cost_basis: 500, current_value: 600 }),
+    ]);
+    const b = calculatePortfolioHealth([
+      asset({ id: "1", name: "A", category: "stock_us", quantity: 100, cost_basis: 500, current_value: 600 }),
+    ]);
+    expect(a.pnl.totalCost).toBe(b.pnl.totalCost);
+    expect(a.pnl.totalGain).toBe(b.pnl.totalGain);
+  });
+
   it("treats cost_basis = 0 as no-cost asset (excluded from winners/losers)", () => {
     const result = calculatePortfolioHealth([
-      asset({ id: "1", name: "Winner", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 200 }),
-      asset({ id: "2", name: "NoCost", category: "crypto", quantity: 1, cost_basis: 0, current_value: 1000 }),
+      asset({ id: "1", name: "Winner", category: "stock_us", cost_basis: 100, current_value: 200 }),
+      asset({ id: "2", name: "NoCost", category: "crypto", cost_basis: 0, current_value: 1000 }),
     ]);
     expect(result.pnl.topWinners.map((m) => m.id)).toEqual(["1"]);
     expect(result.pnl.hasCostBasis).toBe(true);
@@ -77,12 +88,12 @@ describe("P&L calculation", () => {
 
   it("returns top 3 winners + losers, sorted by absolute gain", () => {
     const result = calculatePortfolioHealth([
-      asset({ id: "w1", name: "W1", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 500 }),
-      asset({ id: "w2", name: "W2", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 200 }),
-      asset({ id: "w3", name: "W3", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 150 }),
-      asset({ id: "w4", name: "W4", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 110 }),
-      asset({ id: "l1", name: "L1", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 50 }),
-      asset({ id: "l2", name: "L2", category: "stock_us", quantity: 1, cost_basis: 100, current_value: 70 }),
+      asset({ id: "w1", name: "W1", category: "stock_us", cost_basis: 100, current_value: 500 }),
+      asset({ id: "w2", name: "W2", category: "stock_us", cost_basis: 100, current_value: 200 }),
+      asset({ id: "w3", name: "W3", category: "stock_us", cost_basis: 100, current_value: 150 }),
+      asset({ id: "w4", name: "W4", category: "stock_us", cost_basis: 100, current_value: 110 }),
+      asset({ id: "l1", name: "L1", category: "stock_us", cost_basis: 100, current_value: 50 }),
+      asset({ id: "l2", name: "L2", category: "stock_us", cost_basis: 100, current_value: 70 }),
     ]);
     expect(result.pnl.topWinners.map((m) => m.id)).toEqual(["w1", "w2", "w3"]);
     expect(result.pnl.topLosers.map((m) => m.id)).toEqual(["l1", "l2"]);
