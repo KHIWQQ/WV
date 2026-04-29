@@ -5,7 +5,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import { AppRole } from "@/types";
 import { logger } from "@/lib/logger";
 import { logAudit } from "@/lib/audit";
-import { prefetchFxRates, convertToHome } from "@/lib/currency/aggregate";
+import { prefetchFxRates, convertToHome, findMissingRates } from "@/lib/currency/aggregate";
 
 // Admin Client with Service Role Key to bypass RLS
 function getAdminSupabase() {
@@ -253,6 +253,7 @@ export async function getAdminMetrics() {
     if (assetsError) throw assetsError;
 
     const fxRates = await prefetchFxRates(assetRows ?? []);
+    const missingFxCurrencies = findMissingRates(assetRows ?? [], fxRates);
     const totalSystemAssetsTracked = (assetRows ?? []).reduce(
       (sum, a) => sum + convertToHome(a.current_value ?? 0, a.currency, fxRates),
       0
@@ -289,6 +290,10 @@ export async function getAdminMetrics() {
         premiumUsers: premium,
         userGrowthStr,
         totalSystemAssetsTracked,
+        // List of currencies whose FX rate we couldn't fetch — when non-empty
+        // the totalSystemAssetsTracked figure includes those currencies at 1:1
+        // and the UI should warn the viewer.
+        missingFxCurrencies,
         monthlyData,
         freeUsers: total - premium,
       }

@@ -18,9 +18,10 @@ const config: Config = {
     "!src/lib/openapi/**",
   ],
   // Ratchet — don't go backwards from current baseline.
-  // Raise these as more tests land.
+  // Raise these as more tests land. Last bumped 2026-04-30 after adding
+  // findMissingRates + thai-gold provider tests (88 tests total).
   coverageThreshold: {
-    global: { lines: 6, functions: 13, branches: 2, statements: 6 },
+    global: { lines: 18, functions: 28, branches: 12, statements: 18 },
   },
 };
 
