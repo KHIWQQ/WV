@@ -144,8 +144,11 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
     (() => {
       const cpu = costBasis / quantity;
       const ratio = cpu / currentPrice;
-      // Flag if cost/unit is < 5% or > 20× current — almost certainly a typo
-      return ratio < 0.05 || ratio > 20;
+      // Flag if effective cost/unit is < 1/5 or > 5× current price.
+      // Tighter than the original 20×; covers the common per-unit-vs-total
+      // mistake (e.g. cost=75000 / qty=0.1 / price=77000 → ratio 9.74,
+      // would have slipped through at 20×).
+      return ratio < 0.2 || ratio > 5;
     })();
 
   async function onSubmit(data: AssetSchemaType) {
