@@ -11,6 +11,7 @@
 
 import { yahooProvider } from "./providers/yahoo";
 import { coingeckoProvider } from "./providers/coingecko";
+import { thaiGoldProvider, isThaiGoldSymbol } from "./providers/thai-gold";
 import {
   quoteCache, searchCache, historyCache,
   QUOTE_TTL, SEARCH_TTL, HISTORY_TTL,
@@ -30,6 +31,9 @@ import type {
 function isCrypto(symbol: string): boolean {
   return symbol.includes("-USD") || symbol.includes("-BTC") || symbol.includes("-ETH");
 }
+
+// Thai gold prices update ~5–10x/day; cache longer than equity quotes
+const THAI_GOLD_TTL = 5 * 60_000;
 
 function getClientKey(opts: GatewayOptions): string {
   // Prefer authenticated user ID over IP — protects against
@@ -77,12 +81,18 @@ export async function gatewaySearch(
     return { data: memoryCached, cached: true, provider: "memory" };
   }
 
+  // Thai gold synthetic results — prepend to whatever Yahoo returns so users
+  // searching "ทอง" or "gold" see the 4 retail Thai gold options at the top
+  // (Yahoo doesn't index goldtraders.or.th).
+  const goldResults = await thaiGoldProvider.search(query);
+
   // L2: DB cache
   const dbCached = await searchDbCache.get(cacheKey);
   if (dbCached) {
     const results = dbCached as unknown as MarketSearchResult[];
-    searchCache.set(`search:${cacheKey}`, results, SEARCH_TTL);
-    return { data: results, cached: true, provider: "db-cache" };
+    const merged = [...goldResults, ...results];
+    searchCache.set(`search:${cacheKey}`, merged, SEARCH_TTL);
+    return { data: merged, cached: true, provider: "db-cache" };
   }
 
   // L3: External API — Yahoo first, then CoinGecko
@@ -96,14 +106,19 @@ export async function gatewaySearch(
       results = await coingeckoProvider.search(query);
       provider = "coingecko";
     } catch {
+      // External lookups failed; return whatever we have (gold may still be present)
+      if (goldResults.length > 0) {
+        return { data: goldResults, cached: false, provider: "thai-gold" };
+      }
       return { data: [], cached: false, provider: "none" };
     }
   }
 
-  // Write back to both caches
-  searchCache.set(`search:${cacheKey}`, results, SEARCH_TTL);
+  // Write back to both caches (gold prepended)
+  const merged = [...goldResults, ...results];
+  searchCache.set(`search:${cacheKey}`, merged, SEARCH_TTL);
   await searchDbCache.set(cacheKey, results as unknown as Record<string, unknown>[], provider);
-  return { data: results, cached: false, provider };
+  return { data: merged, cached: false, provider };
 }
 
 export async function gatewayQuote(
@@ -119,16 +134,32 @@ export async function gatewayQuote(
   const quotes: MarketQuote[] = [];
   const uncachedSymbols: string[] = [];
   const uncachedCrypto: string[] = [];
+  const uncachedGold: string[] = [];
 
   // Check cache first for each symbol
   for (const symbol of symbols) {
     const cached = quoteCache.get(`quote:${symbol}`);
     if (cached) {
       quotes.push(cached);
+    } else if (isThaiGoldSymbol(symbol)) {
+      uncachedGold.push(symbol);
     } else if (isCrypto(symbol)) {
       uncachedCrypto.push(symbol);
     } else {
       uncachedSymbols.push(symbol);
+    }
+  }
+
+  // Fetch Thai gold prices (one upstream call covers all 4 synthetic symbols)
+  if (uncachedGold.length > 0) {
+    try {
+      const goldQuotes = await thaiGoldProvider.quote(uncachedGold);
+      for (const q of goldQuotes) {
+        quoteCache.set(`quote:${q.symbol}`, q, THAI_GOLD_TTL);
+        quotes.push(q);
+      }
+    } catch {
+      // Provider always returns a value (fallback inside) but be defensive
     }
   }
 
@@ -186,7 +217,10 @@ export async function gatewayQuote(
       )
     : quotes;
 
-  const allCached = uncachedSymbols.length === 0 && uncachedCrypto.length === 0;
+  const allCached =
+    uncachedSymbols.length === 0 &&
+    uncachedCrypto.length === 0 &&
+    uncachedGold.length === 0;
   return { data: finalQuotes, cached: allCached, provider: allCached ? "cache" : "mixed" };
 }
 

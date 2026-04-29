@@ -29,6 +29,13 @@ export { getExchangeRate, convertCurrency, getUsdThbRate } from "./forex";
 // Direct provider access (for sync-prices server action)
 export { yahooProvider } from "./providers/yahoo";
 export { coingeckoProvider } from "./providers/coingecko";
+export {
+  thaiGoldProvider,
+  isThaiGoldSymbol,
+  THAI_GOLD_SYMBOLS,
+  getThaiGoldPrices,
+} from "./providers/thai-gold";
+export type { ThaiGoldSymbol } from "./providers/thai-gold";
 
 // Utils
 export { getPollingInterval, isMarketOpen } from "./utils";
