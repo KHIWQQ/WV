@@ -60,7 +60,7 @@ export function PnLCard({ pnl }: Props) {
               กำไร/ขาดทุนยังไม่ realize
             </CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
-              เทียบต้นทุนรวมกับมูลค่ารวมปัจจุบัน
+              เทียบต้นทุนรวมกับมูลค่ารวมปัจจุบัน — แปลงทุกสกุลเป็น THB ด้วยอัตราปัจจุบัน
             </p>
           </div>
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/50 text-navy">
@@ -164,7 +164,14 @@ function MoveList({
       <ul className="space-y-1">
         {moves.map((m) => (
           <li key={m.id} className="flex items-center justify-between gap-2">
-            <span className="truncate text-foreground">{m.name}</span>
+            <div className="flex items-center gap-1.5 truncate">
+              <span className="truncate text-foreground">{m.name}</span>
+              {m.currency !== "THB" && (
+                <span className="shrink-0 rounded bg-muted/60 px-1 text-[10px] font-medium text-muted-foreground">
+                  {m.currency}
+                </span>
+              )}
+            </div>
             <span
               className={cn(
                 "shrink-0 font-semibold tabular-nums",

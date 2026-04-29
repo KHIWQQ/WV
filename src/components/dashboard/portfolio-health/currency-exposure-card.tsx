@@ -80,7 +80,7 @@ export function CurrencyExposureCard({ exposure }: Props) {
                   </div>
                   <div className="flex items-baseline gap-3 shrink-0">
                     <span className="text-muted-foreground tabular-nums">
-                      {formatTHB(e.value)}
+                      {formatTHB(e.valueHome)}
                     </span>
                     <span className="w-12 text-right font-semibold text-foreground tabular-nums">
                       {e.pct.toFixed(1)}%

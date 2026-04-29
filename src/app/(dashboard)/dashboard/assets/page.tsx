@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ASSET_CATEGORIES, getAssetCategoryLabel } from "@/lib/utils/constants";
-import { formatTHB, formatPercent } from "@/lib/utils/format";
+import { formatTHB, formatCurrency, formatPercent } from "@/lib/utils/format";
 import { useAssets, useDeleteAsset } from "@/hooks/useAssets";
 import { useSyncPrices } from "@/hooks/useSyncPrices";
+import { useFxRates, toHome } from "@/hooks/useFxRates";
 import { AssetFormDialog } from "@/components/forms/asset-form-dialog";
 import { useTranslation } from "@/lib/i18n";
 import {
@@ -52,11 +53,20 @@ export default function AssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
 
-  const { groups, totalValue, autoUpdateCount } = useMemo(() => ({
+  const currencies = useMemo(
+    () => assets.map((a) => a.currency || "THB"),
+    [assets]
+  );
+  const { data: fxRates } = useFxRates(currencies);
+
+  const { groups, totalValueHome, autoUpdateCount } = useMemo(() => ({
     groups: groupByCategory(assets),
-    totalValue: assets.reduce((s, a) => s + a.current_value, 0),
+    totalValueHome: assets.reduce(
+      (s, a) => s + toHome(a.current_value, a.currency, fxRates),
+      0
+    ),
     autoUpdateCount: assets.filter((a) => a.is_auto_update && a.symbol).length,
-  }), [assets]);
+  }), [assets, fxRates]);
 
   if (isLoading) {
     return (
@@ -90,7 +100,7 @@ export default function AssetsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.assets.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {t.assets.allAssets} {formatTHB(totalValue)}
+            {t.assets.allAssets} {formatTHB(totalValueHome)}
           </p>
         </div>
         <div className="flex gap-2">
@@ -120,7 +130,10 @@ export default function AssetsPage() {
         </Card>
       ) : (
         Object.entries(groups).map(([category, categoryAssets]) => {
-          const groupTotal = categoryAssets.reduce((s, a) => s + a.current_value, 0);
+          const groupTotalHome = categoryAssets.reduce(
+            (s, a) => s + toHome(a.current_value, a.currency, fxRates),
+            0
+          );
           return (
             <Card key={category}>
               <CardHeader className="pb-3">
@@ -133,18 +146,21 @@ export default function AssetsPage() {
                     {getAssetCategoryLabel(category, t.assetCategories)}
                   </CardTitle>
                   <span className="ml-auto text-sm font-semibold">
-                    {formatTHB(groupTotal)}
+                    {formatTHB(groupTotalHome)}
                   </span>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {categoryAssets.map((asset) => {
-                    const gainLoss = asset.current_value - asset.cost_basis;
+                    const cur = (asset.currency || "THB").toUpperCase();
+                    const isForeign = cur !== "THB";
+                    const gainLossNative = asset.current_value - asset.cost_basis;
                     const gainPct =
                       asset.cost_basis > 0
-                        ? (gainLoss / asset.cost_basis) * 100
+                        ? (gainLossNative / asset.cost_basis) * 100
                         : 0;
+                    const valueHome = toHome(asset.current_value, cur, fxRates);
                     return (
                       <div
                         key={asset.id}
@@ -153,6 +169,11 @@ export default function AssetsPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-medium">{asset.name}</p>
+                            {isForeign && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                {cur}
+                              </Badge>
+                            )}
                             {asset.is_auto_update && asset.symbol && (
                               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                                 Auto
@@ -161,23 +182,28 @@ export default function AssetsPage() {
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {asset.symbol && <span className="mr-2">{asset.symbol}</span>}
-                            {t.assets.cost} {formatTHB(asset.cost_basis)}
+                            {t.assets.cost} {formatCurrency(asset.cost_basis, cur)}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
                             <p className="font-semibold">
-                              {formatTHB(asset.current_value)}
+                              {formatCurrency(asset.current_value, cur)}
                             </p>
+                            {isForeign && (
+                              <p className="text-[10px] text-muted-foreground">
+                                ≈ {formatTHB(valueHome)}
+                              </p>
+                            )}
                             <p
                               className={`text-xs font-medium ${
-                                gainLoss >= 0
+                                gainLossNative >= 0
                                   ? "text-emerald-600"
                                   : "text-red-600"
                               }`}
                             >
-                              {gainLoss >= 0 ? "+" : ""}
-                              {formatTHB(gainLoss)} ({formatPercent(gainPct)})
+                              {gainLossNative >= 0 ? "+" : ""}
+                              {formatCurrency(gainLossNative, cur)} ({formatPercent(gainPct)})
                             </p>
                           </div>
                           <div className="flex gap-1">

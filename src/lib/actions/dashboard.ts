@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import { prefetchFxRates, sumInHome } from "@/lib/currency/aggregate";
 import type { Asset, Liability, Transaction, NetWorthHistory, Profile } from "@/types";
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ export async function getDashboardStats(
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
       .from("assets")
-      .select("current_value")
+      .select("current_value, currency")
       .eq("user_id", user.id)
       .is("deleted_at", null),
     supabase
@@ -86,7 +87,14 @@ export async function getDashboardStats(
     logger.error({ err: monthlyIncomeRes.error, userId: user.id }, "dashboard.stats: income query failed");
   }
 
-  const totalAssets = (assetsRes.data ?? []).reduce((sum, a) => sum + Number(a.current_value), 0);
+  // Multi-currency: each asset stores values in its own currency.
+  // Convert all to THB for portfolio totals using a single batched FX prefetch.
+  const assets = assetsRes.data ?? [];
+  const fxRates = await prefetchFxRates(assets);
+  const totalAssets = sumInHome(assets, (a) => Number(a.current_value) || 0, fxRates);
+
+  // Liabilities + transactions are assumed THB-only for MVP. If/when those
+  // grow a currency field, swap to sumInHome.
   const totalLiabilities = (liabilitiesRes.data ?? []).reduce(
     (sum, l) => sum + Number(l.balance),
     0

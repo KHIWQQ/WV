@@ -21,11 +21,17 @@ interface QuoteEntry {
 /**
  * Re-prices all auto-update assets for the current user.
  *
- * IMPORTANT: Yahoo returns prices in the asset's quote currency
- * (USD for AAPL, USD for BTC-USD, JPY for 7203.T, etc.). The portfolio
- * stores `current_value` as THB so that totals across mixed-currency
- * holdings make sense. We therefore convert every non-THB quote to THB
- * before persisting.
+ * Multi-currency contract:
+ *   - Each asset is tracked in its own `currency` (USD for IBKR, THB for SET, JPY for Nomura, ...).
+ *   - `current_price` and `current_value` are stored in that asset's currency.
+ *   - Cross-currency aggregation (dashboard totals, P&L) happens at READ time
+ *     by converting each asset to the user's home currency on the fly — see
+ *     `src/lib/currency/aggregate.ts`.
+ *
+ * So the only conversion this sync does is when Yahoo returns the quote in
+ * a different currency than the asset asks to be tracked in
+ * (e.g. asset.currency = "THB" but BTC-USD comes back in USD → convert USD→THB
+ * before storing).
  */
 export async function syncAssetPrices(): Promise<SyncResult> {
   const supabase = createClient();
@@ -36,7 +42,7 @@ export async function syncAssetPrices(): Promise<SyncResult> {
 
   const { data: assets, error } = await supabase
     .from("assets")
-    .select("id, symbol, quantity")
+    .select("id, symbol, quantity, currency")
     .eq("user_id", user.id)
     .is("deleted_at", null)
     .eq("is_auto_update", true)
@@ -71,22 +77,25 @@ export async function syncAssetPrices(): Promise<SyncResult> {
     }
   }
 
-  // Pre-fetch FX rates for every non-THB currency we saw, so the per-asset
-  // loop below can be sync.
-  const fxRates = new Map<string, number>([["THB", 1]]);
-  const nonThbCurrencies = new Set<string>();
-  for (const q of Array.from(allQuotes.values())) {
-    if (q.currency !== "THB") nonThbCurrencies.add(q.currency);
+  // Pre-fetch FX rates for every (quoteCurrency → assetCurrency) pair we need.
+  // Most assets won't need conversion at all (their currency == quote currency).
+  const fxRates = new Map<string, number>();
+  const conversionPairs = new Set<string>();
+  for (const asset of assets) {
+    const q = allQuotes.get(asset.symbol!);
+    if (!q) continue;
+    const target = ((asset.currency as string | null) ?? "THB").toUpperCase();
+    if (q.currency !== target) {
+      conversionPairs.add(`${q.currency}→${target}`);
+    }
   }
-  for (const cur of Array.from(nonThbCurrencies)) {
-    const rate = await getExchangeRate(cur, "THB");
+  for (const pair of Array.from(conversionPairs)) {
+    const [from, to] = pair.split("→");
+    const rate = await getExchangeRate(from, to);
     if (rate !== null) {
-      fxRates.set(cur, rate);
+      fxRates.set(pair, rate);
     } else {
-      logger.warn(
-        { currency: cur },
-        "sync-prices: no FX rate available — assets in this currency will be skipped"
-      );
+      logger.warn({ pair }, "sync-prices: no FX rate available");
     }
   }
 
@@ -99,17 +108,20 @@ export async function syncAssetPrices(): Promise<SyncResult> {
         skipped++;
         return null;
       }
-      const rate = fxRates.get(q.currency);
-      if (rate === undefined) {
-        // We logged the missing-rate currency above; count as skipped.
-        skipped++;
-        return null;
+      const target = ((asset.currency as string | null) ?? "THB").toUpperCase();
+      let priceInTarget = q.price;
+      if (q.currency !== target) {
+        const rate = fxRates.get(`${q.currency}→${target}`);
+        if (rate === undefined) {
+          skipped++;
+          return null;
+        }
+        priceInTarget = q.price * rate;
       }
-      const priceThb = q.price * rate;
       return {
         id: asset.id,
-        price: priceThb,
-        value: asset.quantity * priceThb,
+        price: priceInTarget,
+        value: asset.quantity * priceInTarget,
       };
     })
     .filter((p): p is { id: string; price: number; value: number } => p !== null);

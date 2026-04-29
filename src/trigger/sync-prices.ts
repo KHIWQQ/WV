@@ -12,10 +12,10 @@ interface QuoteEntry {
  * Refresh prices for every auto-update asset across all users.
  * Runs every 30 minutes during market hours (UTC 12:00–22:00 covers TH/US sessions).
  *
- * Yahoo prices come back in the asset's quote currency (USD for AAPL, USD
- * for BTC-USD, JPY for 7203.T, etc.). The portfolio stores `current_value`
- * as THB so totals across mixed-currency holdings make sense — so we pull
- * FX rates once per unique non-THB currency and convert before persisting.
+ * Multi-currency: Each asset is tracked in its own `currency`. We only
+ * convert when Yahoo's quote currency differs from the asset's tracked
+ * currency (e.g. asset.currency=THB but BTC-USD quote=USD → USD→THB).
+ * Cross-currency portfolio totals happen at READ time on the dashboard.
  */
 export const syncPricesTask = schedules.task({
   id: "sync-prices",
@@ -25,7 +25,7 @@ export const syncPricesTask = schedules.task({
 
     const { data: assets, error } = await supabase
       .from("assets")
-      .select("id, user_id, symbol, quantity")
+      .select("id, user_id, symbol, quantity, currency")
       .eq("is_auto_update", true)
       .is("deleted_at", null)
       .not("symbol", "is", null);
@@ -57,22 +57,23 @@ export const syncPricesTask = schedules.task({
       }
     }
 
-    // Pre-fetch FX rates for every non-THB currency once
-    const fxRates = new Map<string, number>([["THB", 1]]);
-    const nonThbCurrencies = new Set<string>();
-    for (const q of Array.from(quoteMap.values())) {
-      if (q.currency !== "THB") nonThbCurrencies.add(q.currency);
+    // Pre-fetch FX rates for every (quote currency → asset currency) pair
+    const fxRates = new Map<string, number>();
+    const pairs = new Set<string>();
+    for (const asset of assets) {
+      const q = quoteMap.get(asset.symbol!);
+      if (!q) continue;
+      const target = ((asset.currency as string | null) ?? "THB").toUpperCase();
+      if (q.currency !== target) pairs.add(`${q.currency}→${target}`);
     }
-    for (const cur of Array.from(nonThbCurrencies)) {
-      const rate = await getExchangeRate(cur, "THB");
-      if (rate !== null) {
-        fxRates.set(cur, rate);
-      } else {
-        logger.warn("No FX rate, assets in this currency will be skipped", { currency: cur });
-      }
+    for (const pair of Array.from(pairs)) {
+      const [from, to] = pair.split("→");
+      const rate = await getExchangeRate(from, to);
+      if (rate !== null) fxRates.set(pair, rate);
+      else logger.warn("No FX rate", { pair });
     }
 
-    // Group updates by user so we can call the existing batch RPC per user
+    // Group updates by user
     const byUser = new Map<string, { id: string; price: number; value: number }[]>();
     let skipped = 0;
     for (const asset of assets) {
@@ -81,17 +82,21 @@ export const syncPricesTask = schedules.task({
         skipped++;
         continue;
       }
-      const rate = fxRates.get(q.currency);
-      if (rate === undefined) {
-        skipped++;
-        continue;
+      const target = ((asset.currency as string | null) ?? "THB").toUpperCase();
+      let priceInTarget = q.price;
+      if (q.currency !== target) {
+        const rate = fxRates.get(`${q.currency}→${target}`);
+        if (rate === undefined) {
+          skipped++;
+          continue;
+        }
+        priceInTarget = q.price * rate;
       }
-      const priceThb = q.price * rate;
       const arr = byUser.get(asset.user_id) ?? [];
       arr.push({
         id: asset.id,
-        price: priceThb,
-        value: asset.quantity * priceThb,
+        price: priceInTarget,
+        value: asset.quantity * priceInTarget,
       });
       byUser.set(asset.user_id, arr);
     }

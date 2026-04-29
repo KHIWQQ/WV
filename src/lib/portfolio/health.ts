@@ -1,11 +1,12 @@
 import type { Asset } from "@/types";
+import { convertToHome, HOME_CURRENCY } from "@/lib/currency/aggregate";
 
 // ─── Public types ─────────────────────────────────────────────────────
 
 export interface PortfolioPnL {
-  totalCost: number;
-  totalValue: number;
-  totalGain: number;
+  totalCost: number;        // home currency (THB)
+  totalValue: number;       // home currency
+  totalGain: number;        // home currency
   totalReturnPct: number;
   topWinners: AssetMove[];
   topLosers: AssetMove[];
@@ -18,16 +19,19 @@ export interface AssetMove {
   name: string;
   symbol: string | null;
   category: string;
-  cost: number;
-  value: number;
-  gain: number;
-  returnPct: number;
+  currency: string;         // native currency of the asset
+  costNative: number;       // in asset's currency
+  valueNative: number;
+  costHome: number;         // converted to home currency
+  valueHome: number;
+  gainHome: number;
+  returnPct: number;        // % return in native (no FX noise)
 }
 
 export interface CurrencyExposure {
   currency: string;
-  value: number;
-  pct: number;
+  valueHome: number;        // value in THB after FX
+  pct: number;              // share of THB-equivalent total
 }
 
 export type WarningKind = "currency" | "country" | "category" | "single_asset";
@@ -57,7 +61,15 @@ const THRESHOLDS = {
 
 // ─── Core calculator (pure, easy to test) ─────────────────────────────
 
-export function calculatePortfolioHealth(assets: Asset[]): PortfolioHealth {
+/**
+ * `fxRates` is a Map of currency → rate-to-home (1 unit of currency = X home).
+ * Caller produces it via `prefetchFxRates(assets)`. An empty map means "treat
+ * every currency as home" (1:1) — useful for tests where FX is irrelevant.
+ */
+export function calculatePortfolioHealth(
+  assets: Asset[],
+  fxRates: Map<string, number> = new Map([[HOME_CURRENCY, 1]])
+): PortfolioHealth {
   if (assets.length === 0) {
     return {
       pnl: emptyPnL(),
@@ -67,9 +79,9 @@ export function calculatePortfolioHealth(assets: Asset[]): PortfolioHealth {
   }
 
   return {
-    pnl: calculatePnL(assets),
-    currencyExposure: calculateCurrencyExposure(assets),
-    warnings: detectConcentrationWarnings(assets),
+    pnl: calculatePnL(assets, fxRates),
+    currencyExposure: calculateCurrencyExposure(assets, fxRates),
+    warnings: detectConcentrationWarnings(assets, fxRates),
   };
 }
 
@@ -88,44 +100,49 @@ function emptyPnL(): PortfolioPnL {
   };
 }
 
-function calculatePnL(assets: Asset[]): PortfolioPnL {
-  // `cost_basis` and `current_value` are BOTH stored as totals
-  // (verified against asset-form-dialog `t.assets.totalCost` label and
-  // existing /dashboard/assets gain-loss math). Don't multiply by qty.
+function calculatePnL(assets: Asset[], fxRates: Map<string, number>): PortfolioPnL {
+  // `cost_basis` and `current_value` are BOTH stored as totals in the
+  // asset's native currency (asset.currency). Convert to home currency
+  // for portfolio-wide totals. Per-asset return % is computed in native
+  // currency to avoid FX noise distorting the underlying performance.
   const moves: AssetMove[] = assets.map((a) => {
-    const cost = a.cost_basis ?? 0;
-    const value = a.current_value ?? 0;
-    const gain = value - cost;
-    const returnPct = cost > 0 ? (gain / cost) * 100 : 0;
+    const costNative = a.cost_basis ?? 0;
+    const valueNative = a.current_value ?? 0;
+    const currency = (a.currency ?? HOME_CURRENCY).toUpperCase();
+    const costHome = convertToHome(costNative, currency, fxRates);
+    const valueHome = convertToHome(valueNative, currency, fxRates);
+    const gainHome = valueHome - costHome;
+    const returnPct = costNative > 0 ? ((valueNative - costNative) / costNative) * 100 : 0;
     return {
       id: a.id,
       name: a.name,
       symbol: a.symbol ?? null,
       category: a.category,
-      cost,
-      value,
-      gain,
+      currency,
+      costNative,
+      valueNative,
+      costHome,
+      valueHome,
+      gainHome,
       returnPct,
     };
   });
 
-  const totalCost = sum(moves.map((m) => m.cost));
-  const totalValue = sum(moves.map((m) => m.value));
+  const totalCost = sum(moves.map((m) => m.costHome));
+  const totalValue = sum(moves.map((m) => m.valueHome));
   const totalGain = totalValue - totalCost;
   const totalReturnPct = totalCost > 0 ? (totalGain / totalCost) * 100 : 0;
 
-  // Only assets with a cost basis count for winners/losers — otherwise
-  // a brand-new asset with no historical cost would dominate the list.
-  const eligibleMoves = moves.filter((m) => m.cost > 0);
-  const sortedByGain = [...eligibleMoves].sort((a, b) => b.gain - a.gain);
+  const eligibleMoves = moves.filter((m) => m.costNative > 0);
+  const sortedByGain = [...eligibleMoves].sort((a, b) => b.gainHome - a.gainHome);
 
   return {
     totalCost,
     totalValue,
     totalGain,
     totalReturnPct,
-    topWinners: sortedByGain.slice(0, 3).filter((m) => m.gain > 0),
-    topLosers: sortedByGain.slice(-3).reverse().filter((m) => m.gain < 0),
+    topWinners: sortedByGain.slice(0, 3).filter((m) => m.gainHome > 0),
+    topLosers: sortedByGain.slice(-3).reverse().filter((m) => m.gainHome < 0),
     assetCount: assets.length,
     hasCostBasis: eligibleMoves.length > 0,
   };
@@ -133,37 +150,55 @@ function calculatePnL(assets: Asset[]): PortfolioPnL {
 
 // ─── Currency exposure ────────────────────────────────────────────────
 
-function calculateCurrencyExposure(assets: Asset[]): CurrencyExposure[] {
-  const total = sum(assets.map((a) => a.current_value ?? 0));
-  if (total === 0) return [];
-
+function calculateCurrencyExposure(
+  assets: Asset[],
+  fxRates: Map<string, number>
+): CurrencyExposure[] {
+  // Sum in home currency so percentages are comparable across currencies
+  // (otherwise USD$1,000 would look the same size as ฿1,000).
   const byCurrency = new Map<string, number>();
   for (const a of assets) {
-    const cur = (a.currency ?? "THB").toUpperCase();
-    byCurrency.set(cur, (byCurrency.get(cur) ?? 0) + (a.current_value ?? 0));
+    const cur = (a.currency ?? HOME_CURRENCY).toUpperCase();
+    const valueHome = convertToHome(a.current_value ?? 0, cur, fxRates);
+    byCurrency.set(cur, (byCurrency.get(cur) ?? 0) + valueHome);
   }
 
+  const totalHome = sum(Array.from(byCurrency.values()));
+  if (totalHome === 0) return [];
+
   return Array.from(byCurrency.entries())
-    .map(([currency, value]) => ({
+    .map(([currency, valueHome]) => ({
       currency,
-      value,
-      pct: (value / total) * 100,
+      valueHome,
+      pct: (valueHome / totalHome) * 100,
     }))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => b.valueHome - a.valueHome);
 }
 
 // ─── Concentration warnings ───────────────────────────────────────────
 
-function detectConcentrationWarnings(assets: Asset[]): ConcentrationWarning[] {
+function detectConcentrationWarnings(
+  assets: Asset[],
+  fxRates: Map<string, number>
+): ConcentrationWarning[] {
   const warnings: ConcentrationWarning[] = [];
-  const total = sum(assets.map((a) => a.current_value ?? 0));
+
+  // All concentration math runs in home currency so cross-currency
+  // weights are comparable.
+  const valuesHome = assets.map((a) => ({
+    asset: a,
+    valueHome: convertToHome(a.current_value ?? 0, a.currency ?? HOME_CURRENCY, fxRates),
+  }));
+  const total = sum(valuesHome.map((v) => v.valueHome));
   if (total === 0) return warnings;
 
   // Currency: warn if non-THB > 70% (income usually in THB → big FX risk)
-  const byCurrency = aggregateBy(assets, (a) => (a.currency ?? "THB").toUpperCase());
+  const byCurrency = aggregateValuesBy(valuesHome, (v) =>
+    (v.asset.currency ?? HOME_CURRENCY).toUpperCase()
+  );
   const nonThbValue = sum(
     Array.from(byCurrency.entries())
-      .filter(([cur]) => cur !== "THB")
+      .filter(([cur]) => cur !== HOME_CURRENCY)
       .map(([, v]) => v)
   );
   const nonThbPct = nonThbValue / total;
@@ -178,7 +213,7 @@ function detectConcentrationWarnings(assets: Asset[]): ConcentrationWarning[] {
   }
 
   // Single category: warn if > 60% in one asset class
-  const byCategory = aggregateBy(assets, (a) => a.category);
+  const byCategory = aggregateValuesBy(valuesHome, (v) => v.asset.category);
   const topCategory = topEntry(byCategory);
   if (topCategory && topCategory.pct > THRESHOLDS.category) {
     warnings.push({
@@ -191,8 +226,8 @@ function detectConcentrationWarnings(assets: Asset[]): ConcentrationWarning[] {
   }
 
   // Single asset: warn if any asset > 40% of portfolio
-  const topAsset = assets
-    .map((a) => ({ asset: a, pct: (a.current_value ?? 0) / total }))
+  const topAsset = valuesHome
+    .map((v) => ({ asset: v.asset, pct: v.valueHome / total }))
     .sort((a, b) => b.pct - a.pct)[0];
   if (topAsset && topAsset.pct > THRESHOLDS.single) {
     warnings.push({
@@ -205,7 +240,7 @@ function detectConcentrationWarnings(assets: Asset[]): ConcentrationWarning[] {
   }
 
   // Country (only flag extremes — TH-heavy is normal for Thai users)
-  const byCountry = aggregateBy(assets, (a) => a.country_code ?? "TH");
+  const byCountry = aggregateValuesBy(valuesHome, (v) => v.asset.country_code ?? "TH");
   const topCountry = topEntry(byCountry);
   if (topCountry && topCountry.pct > THRESHOLDS.country && topCountry.key !== "TH") {
     warnings.push({
@@ -226,11 +261,19 @@ function sum(values: number[]): number {
   return values.reduce((acc, v) => acc + v, 0);
 }
 
-function aggregateBy(assets: Asset[], keyFn: (a: Asset) => string): Map<string, number> {
+interface ValueHomeEntry {
+  asset: Asset;
+  valueHome: number;
+}
+
+function aggregateValuesBy(
+  values: ValueHomeEntry[],
+  keyFn: (v: ValueHomeEntry) => string
+): Map<string, number> {
   const m = new Map<string, number>();
-  for (const a of assets) {
-    const k = keyFn(a);
-    m.set(k, (m.get(k) ?? 0) + (a.current_value ?? 0));
+  for (const v of values) {
+    const k = keyFn(v);
+    m.set(k, (m.get(k) ?? 0) + v.valueHome);
   }
   return m;
 }

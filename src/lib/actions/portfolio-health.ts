@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
 import { calculatePortfolioHealth, type PortfolioHealth } from "@/lib/portfolio/health";
+import { prefetchFxRates } from "@/lib/currency/aggregate";
 import type { Asset } from "@/types";
 
 export async function getPortfolioHealth(): Promise<PortfolioHealth> {
@@ -25,5 +26,7 @@ export async function getPortfolioHealth(): Promise<PortfolioHealth> {
     return calculatePortfolioHealth([]);
   }
 
-  return calculatePortfolioHealth((data ?? []) as Asset[]);
+  const assets = (data ?? []) as Asset[];
+  const fxRates = await prefetchFxRates(assets);
+  return calculatePortfolioHealth(assets, fxRates);
 }
