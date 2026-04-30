@@ -7,6 +7,7 @@ import {
   PortfolioHealthSkeleton,
 } from "@/components/dashboard/skeletons";
 import { StatCardsSection } from "@/components/dashboard/sections/stat-cards-section";
+import { GoalsProgressSection } from "@/components/dashboard/sections/goals-progress-section";
 import { NetWorthSection } from "@/components/dashboard/sections/net-worth-section";
 import { AllocationSection } from "@/components/dashboard/sections/allocation-section";
 import { RecentTransactionsSection } from "@/components/dashboard/sections/recent-transactions-section";
@@ -38,6 +39,11 @@ export default function DashboardPage() {
 
       <Suspense fallback={<ChartSkeleton height={320} />}>
         <NetWorthSection />
+      </Suspense>
+
+      {/* Renders nothing if user has no goals yet — keeps dashboard clean */}
+      <Suspense fallback={null}>
+        <GoalsProgressSection />
       </Suspense>
 
       <div className="grid gap-6 lg:grid-cols-2">

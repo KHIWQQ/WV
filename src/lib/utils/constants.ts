@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   PieChart,
   TrendingUp,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 
@@ -181,6 +182,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/transactions", labelKey: "transactions", icon: ArrowLeftRight },
   { href: "/dashboard/liabilities", labelKey: "liabilities", icon: CreditCard, isPremium: true },
   { href: "/dashboard/market", labelKey: "market", icon: TrendingUp },
+  { href: "/dashboard/goals", labelKey: "goals", icon: Target },
   { href: "/dashboard/portfolio", labelKey: "portfolio", icon: PieChart, isPremium: true },
   { href: "/dashboard/retirement", labelKey: "retirement", icon: PieChart, isPremium: true },
 ];

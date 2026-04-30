@@ -68,6 +68,7 @@ export interface Translations {
     transactions: string;
     liabilities: string;
     market: string;
+    goals: string;
     portfolio: string;
     retirement: string;
     adminSystem: string;
@@ -275,6 +276,40 @@ export interface Translations {
     exchange: string;
     addToWatchlist: string;
     noDataFor: string;
+  };
+
+  // Goals
+  goals: {
+    title: string;
+    subtitle: string;
+    add: string;
+    edit: string;
+    name: string;
+    nameExample: string;
+    goalType: string;
+    targetAmount: string;
+    currentAmount: string;
+    targetDate: string;
+    monthlyContribution: string;
+    notes: string;
+    progress: string;
+    recommendedMonthly: string;
+    onTrack: string;
+    behindPace: string;
+    empty: string;
+    added: string;
+    edited: string;
+    deleted: string;
+  };
+
+  // Goal Types
+  goalTypes: {
+    house: string;
+    car: string;
+    education: string;
+    emergency_fund: string;
+    retirement: string;
+    other: string;
   };
 
   // Watchlist
