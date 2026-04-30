@@ -320,6 +320,30 @@ export const en: Translations = {
     passwordChangeError: "Failed to change password",
     selectImageFile: "Please select an image file",
     fileTooLarge: "File must be no more than 2MB",
+    exportTab: "Export",
+  },
+
+  taxExport: {
+    title: "Tax data export",
+    subtitle: "CSV bundle of assets + transactions for the year — for PND.90/91 filing or your accountant",
+    year: "Tax year",
+    exportCsv: "Export CSV",
+    exporting: "Exporting...",
+    success: "Export complete",
+    records: "records",
+    note: "Includes UTF-8 BOM so Excel renders Thai characters correctly",
+  },
+
+  healthcare: {
+    title: "Retirement healthcare cost",
+    subtitle: "Projects lifetime healthcare spend — 5%/yr inflation, 1.7× ramp after age 65",
+    currentMonthly: "Current monthly health spend",
+    inflation: "Healthcare inflation (%)",
+    realReturn: "Post-retirement return (%)",
+    projectedMonthly: "Monthly cost at retirement",
+    totalLifetime: "Lifetime total cost",
+    presentValue: "Lump sum needed at retirement",
+    years: "yrs",
   },
 
   header: {

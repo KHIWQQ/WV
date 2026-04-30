@@ -5,11 +5,12 @@ export type AuditAction =
   | "asset.create" | "asset.update" | "asset.delete" | "asset.restore"
   | "liability.create" | "liability.update" | "liability.delete"
   | "transaction.create" | "transaction.update" | "transaction.delete"
+  | "tax-export.create"
   | "profile.update"
   | "subscription.upgrade" | "subscription.downgrade"
   | "auth.login" | "auth.logout";
 
-export type EntityType = "asset" | "liability" | "transaction" | "profile" | "subscription" | "session";
+export type EntityType = "asset" | "liability" | "transaction" | "tax-export" | "profile" | "subscription" | "session";
 
 interface AuditOptions {
   diff?: Record<string, unknown>;

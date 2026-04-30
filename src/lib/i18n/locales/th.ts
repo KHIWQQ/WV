@@ -320,6 +320,30 @@ export const th: Translations = {
     passwordChangeError: "เปลี่ยนรหัสผ่านไม่สำเร็จ",
     selectImageFile: "กรุณาเลือกไฟล์รูปภาพ",
     fileTooLarge: "ไฟล์ต้องมีขนาดไม่เกิน 2MB",
+    exportTab: "ส่งออก",
+  },
+
+  taxExport: {
+    title: "ส่งออกข้อมูลสำหรับยื่นภาษี",
+    subtitle: "CSV รวมทรัพย์สิน + รายการในปี ใช้กรอก ภงด.90/91 หรือส่งให้บัญชี",
+    year: "ปีภาษี",
+    exportCsv: "ส่งออก CSV",
+    exporting: "กำลังส่งออก...",
+    success: "ส่งออกสำเร็จ",
+    records: "รายการ",
+    note: "ไฟล์มี BOM สำหรับเปิดด้วย Excel ให้แสดงภาษาไทยถูกต้อง",
+  },
+
+  healthcare: {
+    title: "ค่ารักษาพยาบาลหลังเกษียณ",
+    subtitle: "ประมาณการณ์ค่าใช้จ่ายตลอดช่วงเกษียณ — เงินเฟ้อ 5%/ปี + ramp 1.7× หลัง 65",
+    currentMonthly: "ค่ารักษา/เดือนปัจจุบัน",
+    inflation: "เงินเฟ้อค่ารักษา (%)",
+    realReturn: "ผลตอบแทนหลังเกษียณ (%)",
+    projectedMonthly: "ค่ารักษา/เดือนตอนเกษียณ",
+    totalLifetime: "ค่าใช้จ่ายรวมตลอดชีวิต",
+    presentValue: "ต้องเตรียมเงินก้อน ณ วันเกษียณ",
+    years: "ปี",
   },
 
   header: {
