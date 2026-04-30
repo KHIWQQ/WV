@@ -103,13 +103,17 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>
             {isEditing ? t.liabilities.editLiability : t.liabilities.addLiability}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-h-0 gap-4"
+        >
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 -mr-2 pr-2">
           <div className="space-y-2">
             <Label>{t.liabilities.name}</Label>
             <Input {...register("name")} placeholder={t.liabilities.nameExample} />
@@ -192,8 +196,9 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
             <Label>{t.liabilities.notes}</Label>
             <Input {...register("notes")} placeholder={t.liabilities.additionalNotes} />
           </div>
+          </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 border-t pt-4 shrink-0">
             <Button
               type="button"
               variant="outline"
