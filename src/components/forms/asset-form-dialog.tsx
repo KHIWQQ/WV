@@ -175,13 +175,19 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>
             {isEditing ? t.assets.editAsset : t.assets.addAsset}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* flex column so fields scroll while the action footer stays pinned —
+            many users on small phones couldn't reach the Save button before. */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-h-0 gap-4"
+        >
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 -mr-2 pr-2">
           <div className="space-y-2">
             <Label>{t.assets.category}</Label>
             <Select
@@ -449,8 +455,9 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             <Label>{t.assets.notes}</Label>
             <Input {...register("notes")} placeholder={t.assets.additionalNotes} />
           </div>
+          </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 border-t pt-4 shrink-0">
             <Button
               type="button"
               variant="outline"
