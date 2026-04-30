@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,9 +10,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getLiabilityTypeLabel } from "@/lib/utils/constants";
-import { formatTHB } from "@/lib/utils/format";
+import { formatTHB, formatPercent } from "@/lib/utils/format";
+import { useAssets } from "@/hooks/useAssets";
+import { useFxRates, toHome } from "@/hooks/useFxRates";
 import { useLiabilities, useDeleteLiability } from "@/hooks/useLiabilities";
 import { LiabilityFormDialog } from "@/components/forms/liability-form-dialog";
+import { LiabilityDetailDialog } from "@/components/liabilities/liability-detail-dialog";
+import { loanToAssetPct, loanToAssetTone } from "@/lib/finance/ratios";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,14 +35,37 @@ import type { Liability } from "@/types";
 export default function LiabilitiesPage() {
   const { t } = useTranslation();
   const { data: liabilities = [], isLoading, isError } = useLiabilities();
+  const { data: assets = [] } = useAssets();
   const deleteMutation = useDeleteLiability();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLiability, setEditingLiability] = useState<Liability | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLiability, setDetailLiability] = useState<Liability | null>(null);
 
-  const { totalBalance, totalMonthly } = useMemo(() => ({
-    totalBalance: liabilities.reduce((s, l) => s + l.balance, 0),
-    totalMonthly: liabilities.reduce((s, l) => s + l.monthly_payment, 0),
-  }), [liabilities]);
+  // FX prefetch needed because each asset stores value in its own currency.
+  // Liabilities are THB-only per existing convention (see dashboard.ts:96).
+  const assetCurrencies = useMemo(
+    () => assets.map((a) => a.currency || "THB"),
+    [assets]
+  );
+  const { data: fxRates } = useFxRates(assetCurrencies);
+
+  const { totalBalance, totalMonthly, totalAssetsHome, ltvPct } = useMemo(() => {
+    const balance = liabilities.reduce((s, l) => s + l.balance, 0);
+    const monthly = liabilities.reduce((s, l) => s + l.monthly_payment, 0);
+    const assetsHome = assets.reduce(
+      (s, a) => s + toHome(a.current_value, a.currency, fxRates),
+      0
+    );
+    return {
+      totalBalance: balance,
+      totalMonthly: monthly,
+      totalAssetsHome: assetsHome,
+      ltvPct: loanToAssetPct(assetsHome, balance),
+    };
+  }, [liabilities, assets, fxRates]);
+
+  const ltvTone = loanToAssetTone(ltvPct);
 
   if (isLoading) {
     return (
@@ -66,6 +93,11 @@ export default function LiabilitiesPage() {
     setDialogOpen(true);
   }
 
+  function handleDetails(liability: Liability) {
+    setDetailLiability(liability);
+    setDetailOpen(true);
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -81,6 +113,38 @@ export default function LiabilitiesPage() {
           {t.liabilities.addLiability}
         </Button>
       </div>
+
+      {/* LTV (Loan-to-Asset) summary — only show when there's data on both sides */}
+      {liabilities.length > 0 && totalAssetsHome > 0 && (
+        <Card variant="glass">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div>
+                <p className="text-sm font-semibold">{t.liabilities.ltvTitle}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t.liabilities.ltvHint}
+                </p>
+              </div>
+              <div className="text-right">
+                <p
+                  className={`text-2xl font-bold tabular-nums ${
+                    ltvTone === "positive"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : ltvTone === "negative"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-amber-600 dark:text-amber-400"
+                  }`}
+                >
+                  {formatPercent(ltvPct, 1)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatTHB(totalBalance)} / {formatTHB(totalAssetsHome)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {liabilities.length === 0 ? (
         <Card>
@@ -103,6 +167,15 @@ export default function LiabilitiesPage() {
                       <span className="rounded bg-muted px-2 py-0.5 text-xs font-medium">
                         {getLiabilityTypeLabel(liability.type, t.liabilityTypes)}
                       </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => handleDetails(liability)}
+                        aria-label={`${t.liabilities.viewDetails} ${liability.name}`}
+                      >
+                        <Info className="h-3.5 w-3.5" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -196,6 +269,11 @@ export default function LiabilitiesPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         liability={editingLiability}
+      />
+      <LiabilityDetailDialog
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        liability={detailLiability}
       />
     </div>
   );
