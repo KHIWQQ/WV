@@ -11,6 +11,11 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatTHB } from "@/lib/utils/format";
+import {
+  CHART_TOOLTIP_CONTENT,
+  CHART_TOOLTIP_LABEL,
+  CHART_TOOLTIP_ITEM,
+} from "@/lib/utils/chart-style";
 import type { Transaction } from "@/types";
 import { useTranslation } from "@/lib/i18n";
 
@@ -85,11 +90,9 @@ export function DailyPatternChart({ transactions, isLoading }: DailyPatternChart
             />
             <Tooltip
               formatter={(value) => [formatTHB(Number(value ?? 0)), t.transactions.expense]}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid hsl(var(--border))",
-                fontSize: "12px",
-              }}
+              contentStyle={CHART_TOOLTIP_CONTENT}
+              labelStyle={CHART_TOOLTIP_LABEL}
+              itemStyle={CHART_TOOLTIP_ITEM}
             />
             <Bar dataKey="amount" fill="#ef4444" radius={[2, 2, 0, 0]} />
           </BarChart>

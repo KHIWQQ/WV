@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { ASSET_CATEGORIES, getAssetCategoryLabel } from "@/lib/utils/constants";
 import { gainLossClass } from "@/lib/utils/gain-loss";
+import { CHART_TOOLTIP_CONTENT, CHART_TOOLTIP_ITEM } from "@/lib/utils/chart-style";
 import { formatTHB, formatPercent, abbreviateNumber } from "@/lib/utils/format";
 import { useAssets } from "@/hooks/useAssets";
 import { useTranslation } from "@/lib/i18n";
@@ -151,16 +152,8 @@ export default function PortfolioPage() {
                     />
                     <Tooltip
                       formatter={(value) => formatTHB(Number(value))}
-                      contentStyle={{
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        backgroundColor: 'rgba(12, 31, 63, 0.95)',
-                        backdropFilter: 'blur(8px)',
-                        color: '#fff',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                        padding: '12px 16px',
-                      }}
-                      itemStyle={{ color: '#fff' }}
+                      contentStyle={CHART_TOOLTIP_CONTENT}
+                      itemStyle={CHART_TOOLTIP_ITEM}
                     />
                     <Bar dataKey="value" radius={[0, 4, 4, 0]} name={t.portfolio.value}>
                       {chartData.map((entry, index) => (

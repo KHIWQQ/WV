@@ -12,6 +12,11 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatTHB } from "@/lib/utils/format";
+import {
+  CHART_TOOLTIP_CONTENT,
+  CHART_TOOLTIP_LABEL,
+  CHART_TOOLTIP_ITEM,
+} from "@/lib/utils/chart-style";
 import type { MonthlyTrendPoint } from "@/types";
 import { useTranslation } from "@/lib/i18n";
 
@@ -84,11 +89,9 @@ export function MonthlyTrendChart({ data, isLoading }: MonthlyTrendChartProps) {
                 };
                 return [formatTHB(Number(value ?? 0)), labels[String(name)] ?? name];
               }}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid hsl(var(--border))",
-                fontSize: "12px",
-              }}
+              contentStyle={CHART_TOOLTIP_CONTENT}
+              labelStyle={CHART_TOOLTIP_LABEL}
+              itemStyle={CHART_TOOLTIP_ITEM}
             />
             <Bar dataKey="income" fill="#22c55e" radius={[2, 2, 0, 0]} barSize={16} />
             <Bar dataKey="expense" fill="#ef4444" radius={[2, 2, 0, 0]} barSize={16} />

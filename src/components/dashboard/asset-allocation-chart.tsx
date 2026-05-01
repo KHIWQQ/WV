@@ -6,6 +6,7 @@ import { useTranslation } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ASSET_CATEGORIES, getAssetCategoryLabel } from "@/lib/utils/constants";
 import { formatTHB } from "@/lib/utils/format";
+import { CHART_TOOLTIP_CONTENT, CHART_TOOLTIP_ITEM } from "@/lib/utils/chart-style";
 import type { Asset } from "@/types";
 
 function getCategoryColor(value: string) {
@@ -81,16 +82,8 @@ export function AssetAllocationChart({ assets = [] }: AssetAllocationChartProps)
                         )
                         : ""
                     }
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      backgroundColor: 'rgba(12, 31, 63, 0.95)',
-                      backdropFilter: 'blur(8px)',
-                      color: '#fff',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                      padding: '12px'
-                    }}
-                    itemStyle={{ color: '#fff' }}
+                    contentStyle={CHART_TOOLTIP_CONTENT}
+                    itemStyle={CHART_TOOLTIP_ITEM}
                   />
                 </PieChart>
               </ResponsiveContainer>
