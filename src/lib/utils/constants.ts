@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   PieChart,
   TrendingUp,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 
@@ -12,22 +13,30 @@ import {
 // Asset Categories
 // ──────────────────────────────
 
+// `quantityUnitKey` is a key into i18n `assetUnits.*` so the UI can render
+// "× 100 หุ้น" / "× 0.1 บาททอง" / "× 1 คัน" instead of the bare number.
+// Keep aligned with the assetUnits block in src/lib/i18n/locales/{th,en,zh}.ts.
 export const ASSET_CATEGORIES = [
-  { value: "cash", labelKey: "cash" as const, color: "#22c55e" },
-  { value: "stock_th", labelKey: "stock_th" as const, color: "#3b82f6" },
-  { value: "stock_us", labelKey: "stock_us" as const, color: "#6366f1" },
-  { value: "mutual_fund", labelKey: "mutual_fund" as const, color: "#8b5cf6" },
-  { value: "crypto", labelKey: "crypto" as const, color: "#f59e0b" },
-  { value: "gold", labelKey: "gold" as const, color: "#D4A843" },
-  { value: "bond", labelKey: "bond" as const, color: "#14b8a6" },
-  { value: "real_estate", labelKey: "real_estate" as const, color: "#ef4444" },
-  { value: "vehicle", labelKey: "vehicle" as const, color: "#64748b" },
-  { value: "insurance", labelKey: "insurance" as const, color: "#ec4899" },
-  { value: "ssf_rmf", labelKey: "ssf_rmf" as const, color: "#06b6d4" },
-  { value: "other", labelKey: "other" as const, color: "#a1a1aa" },
+  { value: "cash", labelKey: "cash" as const, color: "#22c55e", quantityUnitKey: "baht" as const },
+  { value: "stock_th", labelKey: "stock_th" as const, color: "#3b82f6", quantityUnitKey: "share" as const },
+  { value: "stock_us", labelKey: "stock_us" as const, color: "#6366f1", quantityUnitKey: "share" as const },
+  { value: "mutual_fund", labelKey: "mutual_fund" as const, color: "#8b5cf6", quantityUnitKey: "fundUnit" as const },
+  { value: "crypto", labelKey: "crypto" as const, color: "#f59e0b", quantityUnitKey: "coin" as const },
+  { value: "gold", labelKey: "gold" as const, color: "#D4A843", quantityUnitKey: "bahtGold" as const },
+  { value: "bond", labelKey: "bond" as const, color: "#14b8a6", quantityUnitKey: "bond" as const },
+  { value: "real_estate", labelKey: "real_estate" as const, color: "#ef4444", quantityUnitKey: "plot" as const },
+  { value: "vehicle", labelKey: "vehicle" as const, color: "#64748b", quantityUnitKey: "vehicle" as const },
+  { value: "insurance", labelKey: "insurance" as const, color: "#ec4899", quantityUnitKey: "policy" as const },
+  { value: "ssf_rmf", labelKey: "ssf_rmf" as const, color: "#06b6d4", quantityUnitKey: "fundUnit" as const },
+  { value: "other", labelKey: "other" as const, color: "#a1a1aa", quantityUnitKey: "piece" as const },
 ] as const;
 
 export type AssetCategory = (typeof ASSET_CATEGORIES)[number]["value"];
+export type AssetUnitKey = (typeof ASSET_CATEGORIES)[number]["quantityUnitKey"];
+
+export function getAssetUnitKey(category: string): AssetUnitKey | undefined {
+  return ASSET_CATEGORIES.find((c) => c.value === category)?.quantityUnitKey;
+}
 
 // ──────────────────────────────
 // Liability Types
@@ -181,6 +190,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/transactions", labelKey: "transactions", icon: ArrowLeftRight },
   { href: "/dashboard/liabilities", labelKey: "liabilities", icon: CreditCard, isPremium: true },
   { href: "/dashboard/market", labelKey: "market", icon: TrendingUp },
+  { href: "/dashboard/watchlist", labelKey: "watchlist", icon: Star },
   { href: "/dashboard/portfolio", labelKey: "portfolio", icon: PieChart, isPremium: true },
   { href: "/dashboard/retirement", labelKey: "retirement", icon: PieChart, isPremium: true },
 ];

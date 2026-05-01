@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ASSET_CATEGORIES, getAssetCategoryLabel } from "@/lib/utils/constants";
+import { ASSET_CATEGORIES, getAssetCategoryLabel, getAssetUnitKey } from "@/lib/utils/constants";
 import { formatTHB, formatCurrency, formatNumber, formatPercent } from "@/lib/utils/format";
 import { useAssets, useDeleteAsset } from "@/hooks/useAssets";
 import { useSyncPrices } from "@/hooks/useSyncPrices";
@@ -196,7 +196,13 @@ export default function AssetsPage() {
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {asset.symbol && <span className="mr-2">{asset.symbol}</span>}
-                            <span className="mr-2">× {formatNumber(asset.quantity, 4).replace(/\.?0+$/, "")}</span>
+                            <span className="mr-2">
+                              × {formatNumber(asset.quantity, 4).replace(/\.?0+$/, "")}
+                              {(() => {
+                                const unitKey = getAssetUnitKey(asset.category);
+                                return unitKey ? ` ${t.assetUnits[unitKey]}` : "";
+                              })()}
+                            </span>
                             {t.assets.cost} {formatCurrency(asset.cost_basis, cur)}
                           </p>
                           {hasCostAnomaly && (
