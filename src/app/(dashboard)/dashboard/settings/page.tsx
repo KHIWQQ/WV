@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { PasswordForm } from "@/components/settings/password-form";
+import { TaxExportButton } from "@/components/settings/tax-export-button";
 import { useTranslation } from "@/lib/i18n";
 
 export default function SettingsPage() {
@@ -23,6 +24,7 @@ export default function SettingsPage() {
             <TabsList className="mb-6">
               <TabsTrigger value="profile">{t.settings.profile}</TabsTrigger>
               <TabsTrigger value="security">{t.settings.security}</TabsTrigger>
+              <TabsTrigger value="export">{t.settings.exportTab}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile">
@@ -43,6 +45,10 @@ export default function SettingsPage() {
                 </p>
               </div>
               <PasswordForm />
+            </TabsContent>
+
+            <TabsContent value="export">
+              <TaxExportButton />
             </TabsContent>
           </Tabs>
         </CardContent>

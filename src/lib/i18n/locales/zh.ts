@@ -385,6 +385,30 @@ export const zh: Translations = {
     passwordChangeError: "密码修改失败",
     selectImageFile: "请选择图片文件",
     fileTooLarge: "文件大小不能超过 2MB",
+    exportTab: "导出",
+  },
+
+  taxExport: {
+    title: "税务数据导出",
+    subtitle: "导出当年的资产 + 交易 CSV — 用于 PND.90/91 申报或交给会计",
+    year: "税务年度",
+    exportCsv: "导出 CSV",
+    exporting: "导出中...",
+    success: "导出成功",
+    records: "条记录",
+    note: "文件含 UTF-8 BOM，使 Excel 正确显示泰文字符",
+  },
+
+  healthcare: {
+    title: "退休后医疗费用",
+    subtitle: "预测一生医疗支出 — 5%/年通胀, 65 岁后 1.7× 涨幅",
+    currentMonthly: "当前每月医疗支出",
+    inflation: "医疗通胀 (%)",
+    realReturn: "退休后回报率 (%)",
+    projectedMonthly: "退休时每月费用",
+    totalLifetime: "一生总费用",
+    presentValue: "退休时需准备的总额",
+    years: "年",
   },
 
   header: {

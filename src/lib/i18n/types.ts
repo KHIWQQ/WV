@@ -404,6 +404,32 @@ export interface Translations {
     passwordChangeError: string;
     selectImageFile: string;
     fileTooLarge: string;
+    exportTab: string;
+  };
+
+  // Tax export
+  taxExport: {
+    title: string;
+    subtitle: string;
+    year: string;
+    exportCsv: string;
+    exporting: string;
+    success: string;
+    records: string;
+    note: string;
+  };
+
+  // Healthcare projection (retirement page)
+  healthcare: {
+    title: string;
+    subtitle: string;
+    currentMonthly: string;
+    inflation: string;
+    realReturn: string;
+    projectedMonthly: string;
+    totalLifetime: string;
+    presentValue: string;
+    years: string;
   };
 
   // Header
