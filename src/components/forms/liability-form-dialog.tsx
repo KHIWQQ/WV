@@ -118,7 +118,7 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
             <Label>{t.liabilities.name}</Label>
             <Input {...register("name")} placeholder={t.liabilities.nameExample} />
             {errors.name && (
-              <p className="text-xs text-red-600">{errors.name.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>
             )}
           </div>
 
@@ -140,7 +140,7 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
               </SelectContent>
             </Select>
             {errors.type && (
-              <p className="text-xs text-red-600">{errors.type.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.type.message}</p>
             )}
           </div>
 
@@ -149,14 +149,14 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
               <Label>{t.liabilities.loanAmount}</Label>
               <Input type="number" step="any" {...register("principal", { valueAsNumber: true })} />
               {errors.principal && (
-                <p className="text-xs text-red-600">{errors.principal.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.principal.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label>{t.liabilities.balance}</Label>
               <Input type="number" step="any" {...register("balance", { valueAsNumber: true })} />
               {errors.balance && (
-                <p className="text-xs text-red-600">{errors.balance.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.balance.message}</p>
               )}
             </div>
           </div>
@@ -166,14 +166,14 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
               <Label>{t.liabilities.interestRate} ({t.common.perYear})</Label>
               <Input type="number" step="any" {...register("interest_rate", { valueAsNumber: true })} />
               {errors.interest_rate && (
-                <p className="text-xs text-red-600">{errors.interest_rate.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.interest_rate.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label>{t.liabilities.monthlyPayment}</Label>
               <Input type="number" step="any" {...register("monthly_payment", { valueAsNumber: true })} />
               {errors.monthly_payment && (
-                <p className="text-xs text-red-600">{errors.monthly_payment.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.monthly_payment.message}</p>
               )}
             </div>
           </div>
@@ -183,7 +183,7 @@ export function LiabilityFormDialog({ open, onOpenChange, liability }: Liability
               <Label>{t.liabilities.startDate}</Label>
               <Input type="date" {...register("start_date")} />
               {errors.start_date && (
-                <p className="text-xs text-red-600">{errors.start_date.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.start_date.message}</p>
               )}
             </div>
             <div className="space-y-2">

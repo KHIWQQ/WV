@@ -114,7 +114,7 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-red-600 focus:text-red-600"
+              className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
               onClick={() => signOut()}
             >
               <LogOut className="mr-2 h-4 w-4" />

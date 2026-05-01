@@ -61,7 +61,7 @@ export function TransactionItem({ transaction, onEdit, onDelete }: TransactionIt
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-muted-foreground hover:text-red-600"
+          className="h-7 w-7 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
           onClick={() => onDelete(transaction.id)}
         >
           <Trash2 className="h-3 w-3" />

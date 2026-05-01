@@ -2,6 +2,7 @@
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { priceChangeClass } from "@/lib/utils/gain-loss";
 import type { MarketQuote } from "@/types";
 
 interface PriceTickerProps {
@@ -44,9 +45,7 @@ export function PriceTicker({ quote, onClick, compact = false }: PriceTickerProp
           <div
             className={cn(
               "flex items-center justify-end gap-1 text-xs font-medium",
-              isPositive && "text-emerald-600",
-              isNegative && "text-red-600",
-              !isPositive && !isNegative && "text-muted-foreground"
+              priceChangeClass(quote.change)
             )}
           >
             {isPositive ? (

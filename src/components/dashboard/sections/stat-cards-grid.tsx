@@ -31,14 +31,14 @@ export function StatCardsGrid({ stats }: Props) {
         value={formatTHB(stats.totalAssets)}
         changeType="neutral"
         icon={Wallet}
-        iconColor="text-emerald-600"
+        iconColor="text-emerald-600 dark:text-emerald-400"
       />
       <StatCard
         title={t.dashboard.totalLiabilities}
         value={formatTHB(stats.totalLiabilities)}
         changeType="neutral"
         icon={CreditCard}
-        iconColor="text-red-600"
+        iconColor="text-red-600 dark:text-red-400"
       />
       <StatCard
         title={t.dashboard.thisMonthIncome}

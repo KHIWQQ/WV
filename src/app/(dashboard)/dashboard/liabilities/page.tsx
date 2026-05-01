@@ -78,7 +78,7 @@ export default function LiabilitiesPage() {
   if (isError) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-red-600">{t.common.errorLoadData}</div>
+        <div className="text-red-600 dark:text-red-400">{t.common.errorLoadData}</div>
       </div>
     );
   }
@@ -190,7 +190,7 @@ export default function LiabilitiesPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 text-red-600 hover:text-red-700"
+                            className="h-7 w-7 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                             aria-label={`${t.common.delete} ${liability.name}`}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -220,7 +220,7 @@ export default function LiabilitiesPage() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t.liabilities.balance}</span>
-                    <span className="font-semibold text-red-600">
+                    <span className="font-semibold text-red-600 dark:text-red-400">
                       {formatTHB(liability.balance)}
                     </span>
                   </div>

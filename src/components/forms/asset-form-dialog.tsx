@@ -206,7 +206,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               </SelectContent>
             </Select>
             {errors.category && (
-              <p className="text-xs text-red-600">{errors.category.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.category.message}</p>
             )}
           </div>
 
@@ -214,7 +214,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             <Label>{t.assets.name}</Label>
             <Input {...register("name")} placeholder={t.assets.nameExample} />
             {errors.name && (
-              <p className="text-xs text-red-600">{errors.name.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>
             )}
           </div>
 
@@ -236,7 +236,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               </SelectContent>
             </Select>
             {errors.country_code && (
-              <p className="text-xs text-red-600">{errors.country_code.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.country_code.message}</p>
             )}
           </div>
 
@@ -362,7 +362,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
             </Label>
             <Input type="number" step="any" {...register("quantity", { valueAsNumber: true })} />
             {errors.quantity && (
-              <p className="text-xs text-red-600">{errors.quantity.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.quantity.message}</p>
             )}
           </div>
 
@@ -406,7 +406,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
                 }}
               />
               {errors.cost_basis && (
-                <p className="text-xs text-red-600">{errors.cost_basis.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.cost_basis.message}</p>
               )}
               <p className="text-[11px] text-muted-foreground">
                 หรือใส่ยอดที่จ่ายจริงทั้งหมด
@@ -421,7 +421,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               </Label>
               <Input type="number" step="any" {...register("current_price", { valueAsNumber: true })} />
               {errors.current_price && (
-                <p className="text-xs text-red-600">{errors.current_price.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.current_price.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -430,7 +430,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
               </Label>
               <Input type="number" step="any" {...register("current_value", { valueAsNumber: true })} />
               {errors.current_value && (
-                <p className="text-xs text-red-600">{errors.current_value.message}</p>
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.current_value.message}</p>
               )}
             </div>
           </div>

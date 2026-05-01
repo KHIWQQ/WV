@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ASSET_CATEGORIES, getAssetCategoryLabel, getAssetUnitKey } from "@/lib/utils/constants";
 import { formatTHB, formatCurrency, formatNumber, formatPercent } from "@/lib/utils/format";
+import { gainLossClass } from "@/lib/utils/gain-loss";
 import { useAssets, useDeleteAsset } from "@/hooks/useAssets";
 import { useSyncPrices } from "@/hooks/useSyncPrices";
 import { useFxRates, toHome } from "@/hooks/useFxRates";
@@ -79,7 +80,7 @@ export default function AssetsPage() {
   if (isError) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-red-600">{t.common.errorLoadData}</div>
+        <div className="text-red-600 dark:text-red-400">{t.common.errorLoadData}</div>
       </div>
     );
   }
@@ -222,11 +223,7 @@ export default function AssetsPage() {
                               </p>
                             )}
                             <p
-                              className={`text-xs font-medium ${
-                                gainLossNative >= 0
-                                  ? "text-emerald-600"
-                                  : "text-red-600"
-                              }`}
+                              className={`text-xs font-medium ${gainLossClass(gainLossNative)}`}
                             >
                               {gainLossNative >= 0 ? "+" : ""}
                               {formatCurrency(gainLossNative, cur)} ({formatPercent(gainPct)})
@@ -247,7 +244,7 @@ export default function AssetsPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-red-600 hover:text-red-700"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                   aria-label={`${t.common.delete} ${asset.name}`}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />

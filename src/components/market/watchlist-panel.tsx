@@ -153,7 +153,7 @@ function WatchlistCard({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-muted-foreground hover:text-red-600"
+            className="h-7 w-7 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
             onClick={onDelete}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -202,7 +202,7 @@ function WatchlistCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-red-600"
+                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
                     onClick={() => removeMutation.mutate(item.id)}
                   >
                     <X className="h-3 w-3" />

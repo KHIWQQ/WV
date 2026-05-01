@@ -78,7 +78,7 @@ export function SidebarNavItem({
         </span>
       </div>
       {!collapsed && isStaffVariant && (
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
           STAFF
         </span>
       )}
