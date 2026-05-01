@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   PieChart,
   TrendingUp,
+  Target,
   Star,
   type LucideIcon,
 } from "lucide-react";
@@ -52,6 +53,21 @@ export const LIABILITY_TYPES = [
 ] as const;
 
 export type LiabilityType = (typeof LIABILITY_TYPES)[number]["value"];
+
+// ──────────────────────────────
+// Goal Types
+// ──────────────────────────────
+
+export const GOAL_TYPES = [
+  "house",
+  "car",
+  "education",
+  "emergency_fund",
+  "retirement",
+  "other",
+] as const;
+
+export type GoalType = (typeof GOAL_TYPES)[number];
 
 // ──────────────────────────────
 // Transaction Types
@@ -191,6 +207,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/liabilities", labelKey: "liabilities", icon: CreditCard, isPremium: true },
   { href: "/dashboard/market", labelKey: "market", icon: TrendingUp },
   { href: "/dashboard/watchlist", labelKey: "watchlist", icon: Star },
+  { href: "/dashboard/goals", labelKey: "goals", icon: Target },
   { href: "/dashboard/portfolio", labelKey: "portfolio", icon: PieChart, isPremium: true },
   { href: "/dashboard/retirement", labelKey: "retirement", icon: PieChart, isPremium: true },
 ];
