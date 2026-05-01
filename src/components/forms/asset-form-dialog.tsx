@@ -8,7 +8,7 @@ import type { z } from "zod";
 
 type AssetSchemaType = z.input<typeof assetSchema>;
 import { useCreateAsset, useUpdateAsset } from "@/hooks/useAssets";
-import { ASSET_CATEGORIES } from "@/lib/utils/constants";
+import { ASSET_CATEGORIES, getAssetUnitKey } from "@/lib/utils/constants";
 import type { Asset } from "@/types";
 import {
   Dialog,
@@ -348,7 +348,18 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
           </div>
 
           <div className="space-y-2">
-            <Label>{t.assets.quantity}</Label>
+            <Label>
+              {t.assets.quantity}
+              {(() => {
+                const unitKey = getAssetUnitKey(category);
+                if (!unitKey) return null;
+                return (
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                    ({t.assetUnits[unitKey]})
+                  </span>
+                );
+              })()}
+            </Label>
             <Input type="number" step="any" {...register("quantity", { valueAsNumber: true })} />
             {errors.quantity && (
               <p className="text-xs text-red-600">{errors.quantity.message}</p>

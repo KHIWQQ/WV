@@ -68,6 +68,8 @@ export interface Translations {
     transactions: string;
     liabilities: string;
     market: string;
+    watchlist: string;
+    goals: string;
     portfolio: string;
     retirement: string;
     adminSystem: string;
@@ -83,6 +85,14 @@ export interface Translations {
     totalAssets: string;
     totalLiabilities: string;
     thisMonthIncome: string;
+    monthlyExpense: string;
+    savingsRate: string;
+    savingsRateHint: string;
+    topMovers: string;
+    topMoversHint: string;
+    topGainers: string;
+    topLosers: string;
+    noMoversData: string;
     noNetWorthHistory: string;
     assetAllocation: string;
     noAssetData: string;
@@ -138,6 +148,20 @@ export interface Translations {
     insurance: string;
     ssf_rmf: string;
     other: string;
+  };
+
+  // Asset quantity units (per category)
+  assetUnits: {
+    baht: string;
+    share: string;
+    fundUnit: string;
+    coin: string;
+    bahtGold: string;
+    bond: string;
+    plot: string;
+    vehicle: string;
+    policy: string;
+    piece: string;
   };
 
   // Liabilities
@@ -277,6 +301,40 @@ export interface Translations {
     noDataFor: string;
   };
 
+  // Goals
+  goals: {
+    title: string;
+    subtitle: string;
+    add: string;
+    edit: string;
+    name: string;
+    nameExample: string;
+    goalType: string;
+    targetAmount: string;
+    currentAmount: string;
+    targetDate: string;
+    monthlyContribution: string;
+    notes: string;
+    progress: string;
+    recommendedMonthly: string;
+    onTrack: string;
+    behindPace: string;
+    empty: string;
+    added: string;
+    edited: string;
+    deleted: string;
+  };
+
+  // Goal Types
+  goalTypes: {
+    house: string;
+    car: string;
+    education: string;
+    emergency_fund: string;
+    retirement: string;
+    other: string;
+  };
+
   // Watchlist
   watchlist: {
     title: string;
@@ -294,6 +352,17 @@ export interface Translations {
     noWatchlistCreate: string;
     createNew: string;
     upgradePremium: string;
+    // Page-level (added with the dedicated /dashboard/watchlist route)
+    subtitle: string;
+    empty: string;
+    addList: string;
+    addSymbol: string;
+    create: string;
+    deleteList: string;
+    deleteListConfirm: string;
+    items: string;
+    noItems: string;
+    removeItem: string;
   };
 
   // Sync

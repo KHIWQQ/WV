@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { logAudit } from "@/lib/audit";
 import { z } from "zod";
 
 const watchlistNameSchema = z.string().min(1).max(100).trim();
@@ -68,7 +69,11 @@ export async function createWatchlist(name: string): Promise<Watchlist> {
     .single();
 
   if (error) throw new Error(error.message);
+  await logAudit("watchlist.create", "watchlist", data.id, {
+    diff: { name: validatedName },
+  });
   revalidatePath("/dashboard/market");
+  revalidatePath("/dashboard/watchlist");
   return data;
 }
 
@@ -86,7 +91,9 @@ export async function deleteWatchlist(id: string): Promise<void> {
     .eq("user_id", user.id);
 
   if (error) throw new Error(error.message);
+  await logAudit("watchlist.delete", "watchlist", id, {});
   revalidatePath("/dashboard/market");
+  revalidatePath("/dashboard/watchlist");
 }
 
 export async function addWatchlistItem(
@@ -128,7 +135,11 @@ export async function addWatchlistItem(
     throw new Error(error.message);
   }
 
+  await logAudit("watchlist_item.create", "watchlist_item", data.id, {
+    diff: { symbol: validatedItem.symbol, watchlist_id: watchlistId },
+  });
   revalidatePath("/dashboard/market");
+  revalidatePath("/dashboard/watchlist");
   return data;
 }
 
@@ -163,5 +174,7 @@ export async function removeWatchlistItem(itemId: string): Promise<void> {
     .eq("id", itemId);
 
   if (error) throw new Error(error.message);
+  await logAudit("watchlist_item.delete", "watchlist_item", itemId, {});
   revalidatePath("/dashboard/market");
+  revalidatePath("/dashboard/watchlist");
 }
