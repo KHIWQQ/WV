@@ -68,6 +68,7 @@ export interface Translations {
     transactions: string;
     liabilities: string;
     market: string;
+    watchlist: string;
     goals: string;
     portfolio: string;
     retirement: string;
@@ -84,6 +85,14 @@ export interface Translations {
     totalAssets: string;
     totalLiabilities: string;
     thisMonthIncome: string;
+    monthlyExpense: string;
+    savingsRate: string;
+    savingsRateHint: string;
+    topMovers: string;
+    topMoversHint: string;
+    topGainers: string;
+    topLosers: string;
+    noMoversData: string;
     noNetWorthHistory: string;
     assetAllocation: string;
     noAssetData: string;
@@ -139,6 +148,20 @@ export interface Translations {
     insurance: string;
     ssf_rmf: string;
     other: string;
+  };
+
+  // Asset quantity units (per category)
+  assetUnits: {
+    baht: string;
+    share: string;
+    fundUnit: string;
+    coin: string;
+    bahtGold: string;
+    bond: string;
+    plot: string;
+    vehicle: string;
+    policy: string;
+    piece: string;
   };
 
   // Liabilities
@@ -329,6 +352,17 @@ export interface Translations {
     noWatchlistCreate: string;
     createNew: string;
     upgradePremium: string;
+    // Page-level (added with the dedicated /dashboard/watchlist route)
+    subtitle: string;
+    empty: string;
+    addList: string;
+    addSymbol: string;
+    create: string;
+    deleteList: string;
+    deleteListConfirm: string;
+    items: string;
+    noItems: string;
+    removeItem: string;
   };
 
   // Sync

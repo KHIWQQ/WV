@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
 import { prefetchFxRates, sumInHome } from "@/lib/currency/aggregate";
+import { gatewayQuote, isRateLimitError } from "@/lib/market/gateway";
+import { computeSavingsRatePct, sortMovers, type AssetMover } from "@/lib/dashboard/movers";
 import type { Asset, Liability, Transaction, NetWorthHistory, Profile } from "@/types";
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -13,6 +15,16 @@ export interface DashboardStats {
   totalLiabilities: number;
   netWorth: number;
   monthlyIncome: number;
+  monthlyExpense: number;
+  // (income − expense) / income × 100. Returns 0 when income is 0.
+  savingsRatePct: number;
+}
+
+export interface TopMoversResult {
+  winners: AssetMover[];
+  losers: AssetMover[];
+  // Echoed back so the UI can show "no auto-tracked assets" vs "no movement"
+  trackedCount: number;
 }
 
 /** @deprecated Prefer the focused server actions below — kept for backwards compat */
@@ -55,7 +67,7 @@ export async function getDashboardStats(
   const { supabase, user } = await requireUser();
   const bounds = monthStart && monthEnd ? { monthStart, monthEnd } : currentMonthBounds();
 
-  const [profileRes, assetsRes, liabilitiesRes, monthlyIncomeRes] = await Promise.all([
+  const [profileRes, assetsRes, liabilitiesRes, monthlyTxnRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
       .from("assets")
@@ -67,14 +79,15 @@ export async function getDashboardStats(
       .select("balance")
       .eq("user_id", user.id)
       .is("deleted_at", null),
+    // One query covers both income and expense for the month — split client-side
     supabase
       .from("transactions")
-      .select("amount")
+      .select("amount, type")
       .eq("user_id", user.id)
       .is("deleted_at", null)
       .gte("date", bounds.monthStart)
       .lt("date", bounds.monthEnd)
-      .in("type", ["income", "sell"]),
+      .in("type", ["income", "sell", "expense", "buy"]),
   ]);
 
   if (assetsRes.error) {
@@ -83,8 +96,8 @@ export async function getDashboardStats(
   if (liabilitiesRes.error) {
     logger.error({ err: liabilitiesRes.error, userId: user.id }, "dashboard.stats: liabilities query failed");
   }
-  if (monthlyIncomeRes.error) {
-    logger.error({ err: monthlyIncomeRes.error, userId: user.id }, "dashboard.stats: income query failed");
+  if (monthlyTxnRes.error) {
+    logger.error({ err: monthlyTxnRes.error, userId: user.id }, "dashboard.stats: monthly txn query failed");
   }
 
   // Multi-currency: each asset stores values in its own currency.
@@ -99,10 +112,17 @@ export async function getDashboardStats(
     (sum, l) => sum + Number(l.balance),
     0
   );
-  const monthlyIncome = (monthlyIncomeRes.data ?? []).reduce(
-    (sum, t) => sum + Number(t.amount),
-    0
-  );
+
+  // Split month transactions into income vs expense buckets. "sell" counts
+  // as cash inflow (was income side previously); "buy" as expense outflow
+  // for the savings-rate metric (the cash actually left the wallet).
+  let monthlyIncome = 0;
+  let monthlyExpense = 0;
+  for (const t of monthlyTxnRes.data ?? []) {
+    const amount = Number(t.amount) || 0;
+    if (t.type === "income" || t.type === "sell") monthlyIncome += amount;
+    else if (t.type === "expense" || t.type === "buy") monthlyExpense += amount;
+  }
 
   return {
     profile: profileRes.data ?? null,
@@ -110,7 +130,75 @@ export async function getDashboardStats(
     totalLiabilities,
     netWorth: totalAssets - totalLiabilities,
     monthlyIncome,
+    monthlyExpense,
+    savingsRatePct: computeSavingsRatePct(monthlyIncome, monthlyExpense),
   };
+}
+
+// ─── Top Movers ────────────────────────────────────────────────────────
+
+/**
+ * Look up live quotes for every auto-update asset the user owns and return
+ * the biggest gainers and losers by 24h % change. Live fetch — sync-prices
+ * doesn't persist `changePercent`, so we re-fetch through the gateway
+ * (which has its own 30s memory cache plus rate limit) at render time.
+ *
+ * One gatewayQuote() call covers all symbols and counts as one rate-limit
+ * slot regardless of holding count.
+ */
+export async function getTopMovers(limit = 3): Promise<TopMoversResult> {
+  const { supabase, user } = await requireUser();
+
+  const { data: rows, error } = await supabase
+    .from("assets")
+    .select("id, name, symbol, currency, current_value, current_price")
+    .eq("user_id", user.id)
+    .eq("is_auto_update", true)
+    .is("deleted_at", null)
+    .not("symbol", "is", null);
+
+  if (error) {
+    logger.error({ err: error, userId: user.id }, "dashboard.movers: assets query failed");
+    return { winners: [], losers: [], trackedCount: 0 };
+  }
+
+  const tracked = (rows ?? []).filter((r) => !!r.symbol);
+  if (tracked.length === 0) {
+    return { winners: [], losers: [], trackedCount: 0 };
+  }
+
+  const symbols = Array.from(new Set(tracked.map((r) => r.symbol as string)));
+
+  let result;
+  try {
+    result = await gatewayQuote(symbols, { userId: user.id });
+  } catch (e) {
+    logger.warn({ err: e, userId: user.id }, "dashboard.movers: gateway threw");
+    return { winners: [], losers: [], trackedCount: tracked.length };
+  }
+
+  if (isRateLimitError(result)) {
+    logger.warn({ userId: user.id }, "dashboard.movers: gateway rate-limited");
+    return { winners: [], losers: [], trackedCount: tracked.length };
+  }
+
+  const quoteMap = new Map(result.data.map((q) => [q.symbol, q]));
+  const movers: AssetMover[] = tracked
+    .map((r) => {
+      const q = quoteMap.get(r.symbol as string);
+      if (!q || !Number.isFinite(q.changePercent)) return null;
+      return {
+        id: r.id,
+        name: r.name,
+        symbol: r.symbol as string,
+        currency: r.currency || "THB",
+        currentValue: Number(r.current_value) || 0,
+        changePercent: q.changePercent,
+      };
+    })
+    .filter((m): m is AssetMover => m !== null);
+
+  return { ...sortMovers(movers, limit), trackedCount: tracked.length };
 }
 
 /** Net worth history for the last 12 entries (used by NetWorthChart). */

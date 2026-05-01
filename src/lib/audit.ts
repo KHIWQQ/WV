@@ -6,11 +6,13 @@ export type AuditAction =
   | "liability.create" | "liability.update" | "liability.delete"
   | "transaction.create" | "transaction.update" | "transaction.delete"
   | "goal.create" | "goal.update" | "goal.delete"
+  | "watchlist.create" | "watchlist.delete"
+  | "watchlist_item.create" | "watchlist_item.delete"
   | "profile.update"
   | "subscription.upgrade" | "subscription.downgrade"
   | "auth.login" | "auth.logout";
 
-export type EntityType = "asset" | "liability" | "transaction" | "goal" | "profile" | "subscription" | "session";
+export type EntityType = "asset" | "liability" | "transaction" | "goal" | "watchlist" | "watchlist_item" | "profile" | "subscription" | "session";
 
 interface AuditOptions {
   diff?: Record<string, unknown>;
