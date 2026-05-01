@@ -7,6 +7,7 @@ import {
   PortfolioHealthSkeleton,
 } from "@/components/dashboard/skeletons";
 import { StatCardsSection } from "@/components/dashboard/sections/stat-cards-section";
+import { AllocationDriftSection } from "@/components/dashboard/sections/allocation-drift-section";
 import { GoalsProgressSection } from "@/components/dashboard/sections/goals-progress-section";
 import { TopMoversSection } from "@/components/dashboard/sections/top-movers-section";
 import { NetWorthSection } from "@/components/dashboard/sections/net-worth-section";
@@ -32,6 +33,11 @@ export default function DashboardPage() {
 
       <Suspense fallback={<StatCardsSkeleton />}>
         <StatCardsSection />
+      </Suspense>
+
+      {/* Drift alert renders nothing when there's no concentration risk */}
+      <Suspense fallback={null}>
+        <AllocationDriftSection />
       </Suspense>
 
       <Suspense fallback={<PortfolioHealthSkeleton />}>

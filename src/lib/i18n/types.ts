@@ -93,6 +93,8 @@ export interface Translations {
     topGainers: string;
     topLosers: string;
     noMoversData: string;
+    driftTitle: string;
+    driftHint: string;
     noNetWorthHistory: string;
     assetAllocation: string;
     noAssetData: string;
@@ -192,6 +194,21 @@ export interface Translations {
     deleted: string;
     deleteError: string;
     manageLiabilities: string;
+    // Phase 5: amortization + payoff + LTV
+    ltvTitle: string;
+    ltvHint: string;
+    viewDetails: string;
+    amortizationSchedule: string;
+    amortizationHint: string;
+    totalInterest: string;
+    payoffIn: string;
+    months: string;
+    payoffCalc: string;
+    payoffCalcHint: string;
+    extraPerMonth: string;
+    monthsSaved: string;
+    interestSaved: string;
+    underwaterWarning: string;
   };
 
   // Liability Types
