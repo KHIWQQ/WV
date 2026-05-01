@@ -89,6 +89,14 @@
     @apply border-border;
   }
 
+  /* Tells the browser to render native form controls (date pickers,
+     number spinners, range thumbs, file inputs, scrollbars) using the
+     active theme. Without this, <input type="date"> in dark mode
+     shows a black calendar icon on a dark field — looks broken. */
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary scroll-smooth;
     /* Optional: Subtle background mesh/noise could go here via pseudo-element */
