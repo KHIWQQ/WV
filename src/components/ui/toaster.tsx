@@ -21,8 +21,8 @@ export function Toaster() {
             "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-4 shadow-lg transition-all",
             "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=open]:slide-in-from-top-full",
             t.variant === "destructive"
-              ? "border-red-500/50 bg-red-50 text-red-900"
-              : "border-border bg-white text-foreground"
+              ? "border-red-500/50 bg-red-50 text-red-900 dark:bg-red-950 dark:text-red-100 dark:border-red-500/40"
+              : "border-border bg-card text-card-foreground"
           )}
         >
           <div className="grid gap-1">
