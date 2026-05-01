@@ -46,8 +46,8 @@ export interface Translations {
     yourName: string;
     loggingIn: string;
     registering: string;
-    loginWithGithub: string;
-    registerWithGithub: string;
+    loginWithGoogle: string;
+    registerWithGoogle: string;
     noAccount: string;
     hasAccount: string;
     invalidCredentials: string;
