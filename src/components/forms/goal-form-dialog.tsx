@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select";
 import { useCreateGoal, useUpdateGoal } from "@/hooks/useGoals";
 import { useTranslation } from "@/lib/i18n";
-import { GOAL_TYPES, type Goal, type GoalType } from "@/lib/actions/goals";
+import { GOAL_TYPES, type GoalType } from "@/lib/utils/constants";
+import type { Goal } from "@/types/goal";
 
 interface Props {
   open: boolean;

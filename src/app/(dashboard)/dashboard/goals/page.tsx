@@ -21,7 +21,7 @@ import { useTranslation } from "@/lib/i18n";
 import { formatTHB, formatPercent } from "@/lib/utils/format";
 import { projectGoal } from "@/lib/finance/goal-projection";
 import { GoalFormDialog } from "@/components/forms/goal-form-dialog";
-import type { Goal } from "@/lib/actions/goals";
+import type { Goal } from "@/types/goal";
 
 export default function GoalsPage() {
   const { t } = useTranslation();

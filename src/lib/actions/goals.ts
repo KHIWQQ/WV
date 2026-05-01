@@ -5,30 +5,8 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit";
 import { logger } from "@/lib/logger";
-
-export const GOAL_TYPES = [
-  "house",
-  "car",
-  "education",
-  "emergency_fund",
-  "retirement",
-  "other",
-] as const;
-export type GoalType = (typeof GOAL_TYPES)[number];
-
-export interface Goal {
-  id: string;
-  user_id: string;
-  name: string;
-  goal_type: GoalType;
-  target_amount: number;
-  current_amount: number;
-  target_date: string | null;
-  monthly_contribution: number;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { GOAL_TYPES } from "@/lib/utils/constants";
+import type { Goal } from "@/types/goal";
 
 const goalSchema = z.object({
   name: z.string().min(1).max(120).trim(),

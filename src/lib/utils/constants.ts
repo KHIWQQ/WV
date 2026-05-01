@@ -46,6 +46,21 @@ export const LIABILITY_TYPES = [
 export type LiabilityType = (typeof LIABILITY_TYPES)[number]["value"];
 
 // ──────────────────────────────
+// Goal Types
+// ──────────────────────────────
+
+export const GOAL_TYPES = [
+  "house",
+  "car",
+  "education",
+  "emergency_fund",
+  "retirement",
+  "other",
+] as const;
+
+export type GoalType = (typeof GOAL_TYPES)[number];
+
+// ──────────────────────────────
 // Transaction Types
 // ──────────────────────────────
 

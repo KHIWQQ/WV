@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/lib/i18n";
 import { formatTHB, formatPercent } from "@/lib/utils/format";
-import type { Goal } from "@/lib/actions/goals";
+import type { Goal } from "@/types/goal";
 
 interface Props {
   goals: (Goal & { pct: number })[];
