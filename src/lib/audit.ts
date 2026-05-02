@@ -11,9 +11,10 @@ export type AuditAction =
   | "watchlist_item.create" | "watchlist_item.delete"
   | "profile.update"
   | "subscription.upgrade" | "subscription.downgrade"
+  | "settings.update"
   | "auth.login" | "auth.logout";
 
-export type EntityType = "asset" | "liability" | "transaction" | "tax-export" | "goal" | "watchlist" | "watchlist_item" | "profile" | "subscription" | "session";
+export type EntityType = "asset" | "liability" | "transaction" | "tax-export" | "goal" | "watchlist" | "watchlist_item" | "profile" | "subscription" | "app_settings" | "session";
 
 interface AuditOptions {
   diff?: Record<string, unknown>;

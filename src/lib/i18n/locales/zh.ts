@@ -71,6 +71,7 @@ export const zh: Translations = {
     retirement: "退休规划",
     adminSystem: "后台管理",
     userManagement: "用户管理",
+    featureFlags: "高级 / 免费",
     mainMenu: "主菜单",
   },
 

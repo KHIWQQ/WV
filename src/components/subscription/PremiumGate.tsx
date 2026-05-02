@@ -14,10 +14,11 @@ interface PremiumGateProps {
 
 export function PremiumGate({ children, featureName }: PremiumGateProps) {
     const { t } = useTranslation();
-    const { isPremium } = useSubscription();
+    const { isPremium, allFeaturesFree } = useSubscription();
     const [showPricing, setShowPricing] = useState(false);
 
-    if (isPremium) {
+    // Founder-controlled "free promo mode" or actual premium tier.
+    if (allFeaturesFree || isPremium) {
         return <>{children}</>;
     }
 

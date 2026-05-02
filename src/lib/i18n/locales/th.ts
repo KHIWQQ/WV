@@ -71,6 +71,7 @@ export const th: Translations = {
     retirement: "วางแผนเกษียณ",
     adminSystem: "ระบบหลังบ้าน",
     userManagement: "จัดการผู้ใช้งาน",
+    featureFlags: "Premium / ฟรี",
     mainMenu: "เมนูหลัก",
   },
 
