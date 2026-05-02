@@ -71,6 +71,7 @@ export const en: Translations = {
     retirement: "Retirement",
     adminSystem: "Admin System",
     userManagement: "User Management",
+    featureFlags: "Premium / Free",
     mainMenu: "Main Menu",
   },
 

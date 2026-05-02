@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, Users, Sparkles } from "lucide-react";
 import { NAV_ITEMS, type NavItem } from "@/lib/utils/constants";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +13,7 @@ import { useTranslation } from "@/lib/i18n";
 const STAFF_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/admin", labelKey: "adminSystem", icon: LayoutDashboard },
   { href: "/dashboard/admin/users", labelKey: "userManagement", icon: Users },
+  { href: "/dashboard/admin/features", labelKey: "featureFlags", icon: Sparkles },
 ];
 
 interface SidebarNavProps {
@@ -23,7 +24,7 @@ interface SidebarNavProps {
 export function SidebarNav({ collapsed, onClose }: SidebarNavProps) {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const { isPremium } = useSubscription();
+  const { isPremium, allFeaturesFree } = useSubscription();
   const { isStaff } = useAccessControl();
 
   return (
@@ -39,7 +40,9 @@ export function SidebarNav({ collapsed, onClose }: SidebarNavProps) {
             pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
-          const isLocked = !!item.isPremium && !isPremium;
+          // Hide the lock icon when the founder has flipped on the
+          // "free for all" master switch — gated routes are accessible.
+          const isLocked = !!item.isPremium && !isPremium && !allFeaturesFree;
 
           return (
             <SidebarNavItem

@@ -74,6 +74,7 @@ export interface Translations {
     retirement: string;
     adminSystem: string;
     userManagement: string;
+    featureFlags: string;
     mainMenu: string;
   };
 

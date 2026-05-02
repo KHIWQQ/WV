@@ -4,11 +4,17 @@ import type { Asset } from "@/types/asset";
 import type { Liability } from "@/types/liability";
 import type { Transaction } from "@/types/transaction";
 import type { NetWorthHistory, Profile } from "@/types";
+import { DEFAULT_APP_SETTINGS, type AppSettings } from "@/lib/subscription";
 
 interface AppState {
   // User profile
   profile: Profile | null;
   setProfile: (profile: Profile | null) => void;
+
+  // App-wide feature-flag settings (read-only on client; admins write via
+  // server action which then re-hydrates the store).
+  appSettings: AppSettings;
+  setAppSettings: (settings: AppSettings) => void;
 
   // Assets
   assets: Asset[];
@@ -37,6 +43,9 @@ interface AppState {
 export const useAppStore = create<AppState>((set) => ({
   profile: null,
   setProfile: (profile) => set({ profile }),
+
+  appSettings: DEFAULT_APP_SETTINGS,
+  setAppSettings: (settings) => set({ appSettings: settings }),
 
   assets: [],
   setAssets: (assets) => set({ assets }),
