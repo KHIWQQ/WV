@@ -193,23 +193,36 @@ export function getTxCategoryLabel(
 // Navigation Items
 // ──────────────────────────────
 
+import type { PremiumFeature } from "@/lib/subscription/types";
+
 export interface NavItem {
   href: string;
   labelKey: string;
   icon: LucideIcon;
+  /**
+   * Whether this nav entry is premium-gated by default. Used to show
+   * the "PRO" badge and lock icon. The actual gate is decided at runtime
+   * via `featureKey` + the admin app_settings overrides.
+   */
   isPremium?: boolean;
+  /**
+   * The feature key checked against `app_settings.feature_overrides`.
+   * Required for any item with `isPremium: true` so admins can toggle
+   * it from /dashboard/admin/features.
+   */
+  featureKey?: PremiumFeature;
 }
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", labelKey: "overview", icon: LayoutDashboard },
   { href: "/dashboard/assets", labelKey: "assets", icon: Wallet },
   { href: "/dashboard/transactions", labelKey: "transactions", icon: ArrowLeftRight },
-  { href: "/dashboard/liabilities", labelKey: "liabilities", icon: CreditCard, isPremium: true },
+  { href: "/dashboard/liabilities", labelKey: "liabilities", icon: CreditCard, isPremium: true, featureKey: "liabilities" },
   { href: "/dashboard/market", labelKey: "market", icon: TrendingUp },
   { href: "/dashboard/watchlist", labelKey: "watchlist", icon: Star },
   { href: "/dashboard/goals", labelKey: "goals", icon: Target },
-  { href: "/dashboard/portfolio", labelKey: "portfolio", icon: PieChart, isPremium: true },
-  { href: "/dashboard/retirement", labelKey: "retirement", icon: PieChart, isPremium: true },
+  { href: "/dashboard/portfolio", labelKey: "portfolio", icon: PieChart, isPremium: true, featureKey: "portfolio_analytics" },
+  { href: "/dashboard/retirement", labelKey: "retirement", icon: PieChart, isPremium: true, featureKey: "retirement_planning" },
 ];
 
 // ──────────────────────────────

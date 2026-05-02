@@ -15,6 +15,12 @@ interface SidebarNavItemProps {
   item: NavItem;
   isActive: boolean;
   isLocked: boolean;
+  /**
+   * Whether to render the "PRO" badge. False when the feature has been
+   * opened to free via admin overrides — the menu is no longer premium,
+   * so showing PRO would be misleading.
+   */
+  showPremiumBadge: boolean;
   isPremium: boolean;
   collapsed: boolean;
   onClose: () => void;
@@ -25,6 +31,7 @@ export function SidebarNavItem({
   item,
   isActive,
   isLocked,
+  showPremiumBadge,
   isPremium,
   collapsed,
   onClose,
@@ -82,7 +89,7 @@ export function SidebarNavItem({
           STAFF
         </span>
       )}
-      {!collapsed && !isStaffVariant && item.isPremium && (
+      {!collapsed && !isStaffVariant && showPremiumBadge && (
         <span
           className={cn(
             "text-[10px] font-bold px-1.5 py-0.5 rounded-full border",
@@ -94,7 +101,7 @@ export function SidebarNavItem({
           PRO
         </span>
       )}
-      {collapsed && !isStaffVariant && item.isPremium && isPremium && (
+      {collapsed && !isStaffVariant && showPremiumBadge && isPremium && (
         <div className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-gold"></div>
       )}
     </Link>
