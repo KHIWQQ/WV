@@ -14,6 +14,11 @@ import {
   Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  CHART_TOOLTIP_CONTENT,
+  CHART_TOOLTIP_LABEL,
+  CHART_TOOLTIP_ITEM,
+} from "@/lib/utils/chart-style";
 
 interface MonthlyUserData {
   month: string;
@@ -54,17 +59,9 @@ export function AdminGrowthChart({ data, title, usersLabel }: AdminGrowthChartPr
                 allowDecimals={false}
               />
               <Tooltip
-                labelStyle={{ fontWeight: 600, color: '#fff', marginBottom: '4px' }}
-                contentStyle={{
-                  borderRadius: '12px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backgroundColor: 'rgba(12, 31, 63, 0.95)',
-                  backdropFilter: 'blur(8px)',
-                  color: '#fff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                  padding: '8px 12px',
-                }}
-                itemStyle={{ color: '#fff' }}
+                labelStyle={CHART_TOOLTIP_LABEL}
+                contentStyle={CHART_TOOLTIP_CONTENT}
+                itemStyle={CHART_TOOLTIP_ITEM}
               />
               <Bar
                 dataKey="count"
@@ -124,16 +121,8 @@ export function AdminSubscriptionChart({ data, title }: AdminSubscriptionChartPr
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{
-                  borderRadius: '12px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backgroundColor: 'rgba(12, 31, 63, 0.95)',
-                  backdropFilter: 'blur(8px)',
-                  color: '#fff',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                  padding: '8px 12px',
-                }}
-                itemStyle={{ color: '#fff' }}
+                contentStyle={CHART_TOOLTIP_CONTENT}
+                itemStyle={CHART_TOOLTIP_ITEM}
               />
               <Legend
                 verticalAlign="bottom"

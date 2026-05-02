@@ -94,7 +94,7 @@ export function UserManagementTable({ initialUsers, currentUserRole }: UserManag
                                         value={user.role || 'user'}
                                         onValueChange={(val) => handleRoleChange(user.id, val)}
                                     >
-                                        <SelectTrigger className="w-[130px] h-8 text-xs bg-white/50 glass-surface border-white/20 dark:border-white/10">
+                                        <SelectTrigger className="w-[130px] h-8 text-xs">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -118,7 +118,7 @@ export function UserManagementTable({ initialUsers, currentUserRole }: UserManag
                                         value={user.subscription_tier || 'free'}
                                         onValueChange={(val) => handleSubChange(user.id, val)}
                                     >
-                                        <SelectTrigger className="w-[100px] h-8 text-xs bg-white/50 glass-surface border-white/20 dark:border-white/10">
+                                        <SelectTrigger className="w-[100px] h-8 text-xs">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>

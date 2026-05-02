@@ -125,7 +125,7 @@ export default function LoginPage() {
               {t.auth.noAccount}{" "}
               <Link
                 href="/register"
-                className="font-medium text-navy underline-offset-4 hover:underline"
+                className="font-medium text-navy dark:text-gold underline-offset-4 hover:underline"
               >
                 {t.auth.register}
               </Link>

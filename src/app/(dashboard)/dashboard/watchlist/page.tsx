@@ -106,7 +106,7 @@ export default function WatchlistPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-red-600 hover:text-red-700"
+                        className="h-7 w-7 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                         aria-label={t.watchlist.deleteList}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -158,7 +158,7 @@ export default function WatchlistPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 shrink-0 text-red-600 hover:text-red-700"
+                          className="h-8 w-8 shrink-0 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                           aria-label={t.watchlist.removeItem}
                           onClick={() => removeItemMutation.mutate(item.id)}
                         >

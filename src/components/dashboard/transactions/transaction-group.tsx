@@ -2,6 +2,7 @@
 
 import { formatTHB } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { gainLossClass } from "@/lib/utils/gain-loss";
 import { TransactionItem } from "./transaction-item";
 import type { TransactionGroup as TxGroup } from "@/lib/utils/period";
 import type { Transaction } from "@/types";
@@ -20,10 +21,7 @@ export function TransactionGroup({ group, onEdit, onDelete }: TransactionGroupPr
           {group.label}
         </span>
         <span
-          className={cn(
-            "text-xs font-medium",
-            group.total >= 0 ? "text-emerald-600" : "text-red-600"
-          )}
+          className={cn("text-xs font-medium", gainLossClass(group.total))}
         >
           {group.total >= 0 ? "+" : ""}
           {formatTHB(group.total)}

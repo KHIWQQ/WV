@@ -165,7 +165,7 @@ export function ProfileForm() {
           <Label>{t.settings.displayName}</Label>
           <Input {...register("display_name")} placeholder={t.settings.yourName} />
           {errors.display_name && (
-            <p className="text-xs text-red-600">{errors.display_name.message}</p>
+            <p className="text-xs text-red-600 dark:text-red-400">{errors.display_name.message}</p>
           )}
         </div>
 

@@ -10,6 +10,7 @@ import { PriceChart } from "@/components/market/price-chart";
 import { AddToWatchlistDialog } from "@/components/market/add-to-watchlist-dialog";
 import { useMarketQuote } from "@/hooks/useMarket";
 import { cn } from "@/lib/utils/cn";
+import { priceChangeClass } from "@/lib/utils/gain-loss";
 import { useTranslation } from "@/lib/i18n";
 
 export default function SymbolPage() {
@@ -90,9 +91,7 @@ export default function SymbolPage() {
               <p
                 className={cn(
                   "text-sm font-semibold tabular-nums",
-                  quote.change > 0 && "text-emerald-600",
-                  quote.change < 0 && "text-red-600",
-                  quote.change === 0 && "text-muted-foreground"
+                  priceChangeClass(quote.change)
                 )}
               >
                 {quote.change > 0 ? "+" : ""}

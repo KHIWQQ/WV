@@ -25,22 +25,22 @@ export function PeriodSummaryBar({
       label: t.transactions.income,
       value: totalIncome,
       icon: ArrowDownLeft,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-500/10",
     },
     {
       label: t.transactions.expense,
       value: totalExpense,
       icon: ArrowUpRight,
-      color: "text-red-600",
-      bg: "bg-red-50",
+      color: "text-red-600 dark:text-red-400",
+      bg: "bg-red-500/10",
     },
     {
       label: t.transactions.balance,
       value: net,
       icon: Wallet,
-      color: net >= 0 ? "text-emerald-600" : "text-red-600",
-      bg: net >= 0 ? "bg-emerald-50" : "bg-red-50",
+      color: net >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400",
+      bg: net >= 0 ? "bg-emerald-500/10" : "bg-red-500/10",
     },
   ];
 

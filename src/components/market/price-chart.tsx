@@ -14,6 +14,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useMarketHistory } from "@/hooks/useMarket";
+import {
+  CHART_TOOLTIP_CONTENT,
+  CHART_TOOLTIP_LABEL,
+  CHART_TOOLTIP_ITEM,
+} from "@/lib/utils/chart-style";
 import type { TimeRange } from "@/types";
 
 const RANGES: { value: TimeRange; label: string }[] = [
@@ -123,17 +128,9 @@ export function PriceChart({ symbol, name }: PriceChartProps) {
                       year: "numeric",
                     });
                   }}
-                  contentStyle={{
-                    borderRadius: "12px",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    backgroundColor: "rgba(12, 31, 63, 0.95)",
-                    backdropFilter: "blur(8px)",
-                    color: "#fff",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-                    padding: "12px 16px",
-                  }}
-                  labelStyle={{ fontWeight: 600, color: "#fff", marginBottom: "8px" }}
-                  itemStyle={{ color: "#fff", padding: "2px 0" }}
+                  contentStyle={CHART_TOOLTIP_CONTENT}
+                  labelStyle={CHART_TOOLTIP_LABEL}
+                  itemStyle={CHART_TOOLTIP_ITEM}
                 />
                 <Area
                   type="monotone"

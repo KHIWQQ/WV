@@ -49,7 +49,7 @@ export function PasswordForm() {
           placeholder="••••••••"
         />
         {errors.current_password && (
-          <p className="text-xs text-red-600">{errors.current_password.message}</p>
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.current_password.message}</p>
         )}
       </div>
 
@@ -61,7 +61,7 @@ export function PasswordForm() {
           placeholder={t.auth.atLeast8Chars}
         />
         {errors.new_password && (
-          <p className="text-xs text-red-600">{errors.new_password.message}</p>
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.new_password.message}</p>
         )}
       </div>
 
@@ -73,7 +73,7 @@ export function PasswordForm() {
           placeholder={t.settings.reenterPassword}
         />
         {errors.confirm_password && (
-          <p className="text-xs text-red-600">
+          <p className="text-xs text-red-600 dark:text-red-400">
             {errors.confirm_password.message}
           </p>
         )}

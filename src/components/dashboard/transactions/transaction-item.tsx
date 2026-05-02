@@ -8,11 +8,14 @@ import { useTranslation } from "@/lib/i18n";
 import { cn } from "@/lib/utils/cn";
 import type { Transaction } from "@/types";
 
+// `bg` removed: the icon background is rendered inline via meta.color + opacity
+// (line 35), so the static bg-*-50 classes here were dead code AND unthemed for
+// dark mode. Keep `color` for the amount text and the icon stroke.
 const TYPE_CONFIG = {
-  income: { icon: ArrowDownLeft, color: "text-emerald-600", bg: "bg-emerald-50", sign: "+" },
-  expense: { icon: ArrowUpRight, color: "text-red-600", bg: "bg-red-50", sign: "-" },
-  buy: { icon: ShoppingCart, color: "text-blue-600", bg: "bg-blue-50", sign: "-" },
-  sell: { icon: Banknote, color: "text-amber-600", bg: "bg-amber-50", sign: "+" },
+  income: { icon: ArrowDownLeft, color: "text-emerald-600 dark:text-emerald-400", sign: "+" },
+  expense: { icon: ArrowUpRight, color: "text-red-600 dark:text-red-400", sign: "-" },
+  buy: { icon: ShoppingCart, color: "text-blue-600 dark:text-blue-400", sign: "-" },
+  sell: { icon: Banknote, color: "text-amber-600 dark:text-amber-400", sign: "+" },
 };
 
 interface TransactionItemProps {
@@ -58,7 +61,7 @@ export function TransactionItem({ transaction, onEdit, onDelete }: TransactionIt
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-muted-foreground hover:text-red-600"
+          className="h-7 w-7 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
           onClick={() => onDelete(transaction.id)}
         >
           <Trash2 className="h-3 w-3" />

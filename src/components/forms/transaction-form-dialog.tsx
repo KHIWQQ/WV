@@ -144,7 +144,7 @@ export function TransactionFormDialog({
               </SelectContent>
             </Select>
             {errors.type && (
-              <p className="text-xs text-red-600">{errors.type.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.type.message}</p>
             )}
           </div>
 
@@ -180,7 +180,7 @@ export function TransactionFormDialog({
               </Select>
             )}
             {errors.category && (
-              <p className="text-xs text-red-600">{errors.category.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.category.message}</p>
             )}
           </div>
 
@@ -192,7 +192,7 @@ export function TransactionFormDialog({
               {...register("amount", { valueAsNumber: true })}
             />
             {errors.amount && (
-              <p className="text-xs text-red-600">{errors.amount.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.amount.message}</p>
             )}
           </div>
 
@@ -205,7 +205,7 @@ export function TransactionFormDialog({
             <Label>{t.transactions.date}</Label>
             <Input type="date" {...register("date")} />
             {errors.date && (
-              <p className="text-xs text-red-600">{errors.date.message}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{errors.date.message}</p>
             )}
           </div>
           </div>

@@ -18,6 +18,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ASSET_CATEGORIES, getAssetCategoryLabel } from "@/lib/utils/constants";
+import { gainLossClass } from "@/lib/utils/gain-loss";
+import { CHART_TOOLTIP_CONTENT, CHART_TOOLTIP_ITEM } from "@/lib/utils/chart-style";
 import { formatTHB, formatPercent, abbreviateNumber } from "@/lib/utils/format";
 import { useAssets } from "@/hooks/useAssets";
 import { useTranslation } from "@/lib/i18n";
@@ -89,7 +91,7 @@ export default function PortfolioPage() {
   if (isError) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="text-red-600">{t.common.errorLoadData}</div>
+        <div className="text-red-600 dark:text-red-400">{t.common.errorLoadData}</div>
       </div>
     );
   }
@@ -102,7 +104,7 @@ export default function PortfolioPage() {
           <p className="text-sm text-muted-foreground">
             {t.portfolio.totalValue} {formatTHB(totalCurrent)} · {t.portfolio.gainLoss}{" "}
             <span
-              className={totalGain >= 0 ? "text-emerald-600" : "text-red-600"}
+              className={gainLossClass(totalGain)}
             >
               {totalGain >= 0 ? "+" : ""}
               {formatTHB(totalGain)} ({formatPercent(totalGainPct)})
@@ -150,16 +152,8 @@ export default function PortfolioPage() {
                     />
                     <Tooltip
                       formatter={(value) => formatTHB(Number(value))}
-                      contentStyle={{
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        backgroundColor: 'rgba(12, 31, 63, 0.95)',
-                        backdropFilter: 'blur(8px)',
-                        color: '#fff',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                        padding: '12px 16px',
-                      }}
-                      itemStyle={{ color: '#fff' }}
+                      contentStyle={CHART_TOOLTIP_CONTENT}
+                      itemStyle={CHART_TOOLTIP_ITEM}
                     />
                     <Bar dataKey="value" radius={[0, 4, 4, 0]} name={t.portfolio.value}>
                       {chartData.map((entry, index) => (
@@ -213,7 +207,7 @@ export default function PortfolioPage() {
                           </td>
                           <td
                             className={`py-3 text-right font-medium ${
-                              gain >= 0 ? "text-emerald-600" : "text-red-600"
+                              gainLossClass(gain)
                             }`}
                           >
                             {gain >= 0 ? "+" : ""}
@@ -221,7 +215,7 @@ export default function PortfolioPage() {
                           </td>
                           <td
                             className={`py-3 text-right font-medium ${
-                              gain >= 0 ? "text-emerald-600" : "text-red-600"
+                              gainLossClass(gain)
                             }`}
                           >
                             {formatPercent(gainPct)}
@@ -235,7 +229,7 @@ export default function PortfolioPage() {
                       <td className="pt-3 text-right">{formatTHB(totalCurrent)}</td>
                       <td
                         className={`pt-3 text-right ${
-                          totalGain >= 0 ? "text-emerald-600" : "text-red-600"
+                          gainLossClass(totalGain)
                         }`}
                       >
                         {totalGain >= 0 ? "+" : ""}
@@ -243,7 +237,7 @@ export default function PortfolioPage() {
                       </td>
                       <td
                         className={`pt-3 text-right ${
-                          totalGain >= 0 ? "text-emerald-600" : "text-red-600"
+                          gainLossClass(totalGain)
                         }`}
                       >
                         {formatPercent(totalGainPct)}

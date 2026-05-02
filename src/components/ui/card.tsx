@@ -10,7 +10,7 @@ const Card = React.forwardRef<
     className={cn(
       "rounded-xl border text-card-foreground shadow-sm transition-all duration-300",
       variant === 'default' && "bg-card hover:shadow-md",
-      variant === 'glass' && "bg-white/70 glass-surface backdrop-blur-xl border-white/20 shadow-sm",
+      variant === 'glass' && "glass-panel",
       className
     )}
     {...props}
