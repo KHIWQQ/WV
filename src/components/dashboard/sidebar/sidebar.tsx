@@ -36,7 +36,7 @@ export function Sidebar({
       <aside
         aria-label="Main sidebar"
         className={cn(
-          "fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] w-64 flex-col border-r border-border/40 bg-white/80 glass-surface backdrop-blur-xl transition-all duration-300 ease-in-out lg:translate-x-0 shadow-sm",
+          "fixed left-0 top-16 z-30 flex h-[calc(100vh-4rem)] w-64 flex-col border-r border-border/40 bg-white/80 dark:bg-[#061121]/60 backdrop-blur-xl transition-all duration-300 ease-in-out lg:translate-x-0 shadow-sm dark:shadow-[0_8px_30px_rgb(0_0_0/0.6)]",
           open ? "translate-x-0" : "-translate-x-full",
           collapsed && "lg:w-16"
         )}

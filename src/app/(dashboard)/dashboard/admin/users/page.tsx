@@ -28,7 +28,7 @@ export default async function AdminUsersPage() {
                 </p>
             </div>
 
-            <div className="rounded-xl border border-border/50 bg-white/50 glass-surface backdrop-blur-xl shadow-sm p-6">
+            <div className="rounded-xl glass-panel p-6">
                 {success && users ? (
                     <UserManagementTable initialUsers={users} currentUserRole={currentRole} />
                 ) : (
