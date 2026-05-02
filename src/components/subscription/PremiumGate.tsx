@@ -6,19 +6,29 @@ import { useTranslation } from "@/lib/i18n";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { PricingDialog } from "@/components/subscription/pricing-dialog";
+import type { PremiumFeature } from "@/lib/subscription";
 
 interface PremiumGateProps {
     children: ReactNode;
     featureName: string;
+    /**
+     * Optional feature key. When provided, the gate respects per-feature
+     * overrides from the admin /features page (in addition to the master
+     * "all free" switch and the user's tier). Without it, the gate falls
+     * back to the binary tier check.
+     */
+    feature?: PremiumFeature;
 }
 
-export function PremiumGate({ children, featureName }: PremiumGateProps) {
+export function PremiumGate({ children, featureName, feature }: PremiumGateProps) {
     const { t } = useTranslation();
-    const { isPremium, allFeaturesFree } = useSubscription();
+    const { isPremium, canAccess } = useSubscription();
     const [showPricing, setShowPricing] = useState(false);
 
-    // Founder-controlled "free promo mode" or actual premium tier.
-    if (allFeaturesFree || isPremium) {
+    // If a specific feature key is provided, honor it — covers master switch,
+    // per-feature override, and tier all in one. Otherwise binary tier check.
+    const allowed = feature ? canAccess(feature) : isPremium;
+    if (allowed) {
         return <>{children}</>;
     }
 

@@ -3,7 +3,7 @@ import { PremiumGate } from "@/components/subscription/PremiumGate";
 
 export default function RetirementLayout({ children }: { children: ReactNode }) {
     return (
-        <PremiumGate featureName="วางแผนเกษียณ">
+        <PremiumGate featureName="วางแผนเกษียณ" feature="retirement_planning">
             {children}
         </PremiumGate>
     );

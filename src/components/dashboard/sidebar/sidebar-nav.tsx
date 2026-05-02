@@ -24,7 +24,7 @@ interface SidebarNavProps {
 export function SidebarNav({ collapsed, onClose }: SidebarNavProps) {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const { isPremium, allFeaturesFree } = useSubscription();
+  const { isPremium, canAccess } = useSubscription();
   const { isStaff } = useAccessControl();
 
   return (
@@ -40,16 +40,22 @@ export function SidebarNav({ collapsed, onClose }: SidebarNavProps) {
             pathname === item.href ||
             (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
-          // Hide the lock icon when the founder has flipped on the
-          // "free for all" master switch — gated routes are accessible.
-          const isLocked = !!item.isPremium && !isPremium && !allFeaturesFree;
+          // Is this menu currently gated to premium-only? Considers
+          // the master switch + per-feature override + tier in one call.
+          // When the admin opens a feature to free, this becomes false →
+          // both the lock icon AND the PRO badge disappear.
+          const isCurrentlyGated =
+            !!item.isPremium &&
+            !!item.featureKey &&
+            !canAccess(item.featureKey);
 
           return (
             <SidebarNavItem
               key={item.href}
               item={item}
               isActive={isActive}
-              isLocked={isLocked}
+              isLocked={isCurrentlyGated && !isPremium}
+              showPremiumBadge={isCurrentlyGated}
               isPremium={isPremium}
               collapsed={collapsed}
               onClose={onClose}
@@ -66,6 +72,7 @@ export function SidebarNav({ collapsed, onClose }: SidebarNavProps) {
                 item={item}
                 isActive={pathname === item.href}
                 isLocked={false}
+                showPremiumBadge={false}
                 isPremium={isPremium}
                 collapsed={collapsed}
                 onClose={onClose}

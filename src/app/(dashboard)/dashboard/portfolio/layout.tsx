@@ -3,7 +3,7 @@ import { PremiumGate } from "@/components/subscription/PremiumGate";
 
 export default function PortfolioLayout({ children }: { children: ReactNode }) {
     return (
-        <PremiumGate featureName="พอร์ตการลงทุน">
+        <PremiumGate featureName="พอร์ตการลงทุน" feature="portfolio_analytics">
             {children}
         </PremiumGate>
     );

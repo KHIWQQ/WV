@@ -1,6 +1,7 @@
 export type SubscriptionTier = "free" | "premium";
 
 export const PREMIUM_FEATURES = [
+  "liabilities",
   "portfolio_analytics",
   "retirement_planning",
   "advanced_market_data",
@@ -15,6 +16,7 @@ export type PremiumFeature = (typeof PREMIUM_FEATURES)[number];
  * Keep in sync with PREMIUM_FEATURES.
  */
 export const PREMIUM_FEATURE_LABELS: Record<PremiumFeature, string> = {
+  liabilities: "จัดการหนี้สิน (Liabilities)",
   portfolio_analytics: "วิเคราะห์พอร์ตการลงทุน (Portfolio analytics)",
   retirement_planning: "วางแผนเกษียณ (Retirement planning)",
   advanced_market_data: "ข้อมูลตลาดขั้นสูง (Advanced market data)",
