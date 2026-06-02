@@ -403,6 +403,12 @@ export const en: Translations = {
     exchange: "Exchange",
     addToWatchlist: "Add to Watchlist",
     noDataFor: "No data found for",
+    proChart: "Pro",
+    liteChart: "Lite",
+    proChartTitle: "Professional chart (TradingView)",
+    proChartDesc: "Full technical-analysis toolkit — indicators, drawing tools, and timeframes from TradingView.",
+    proUnavailable: "No Pro chart for this symbol — showing Lite.",
+    poweredByTradingView: "Powered by TradingView",
   },
 
   goals: {
