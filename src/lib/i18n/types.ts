@@ -150,6 +150,7 @@ export interface Translations {
     vehicle: string;
     insurance: string;
     ssf_rmf: string;
+    gpf: string;
     other: string;
   };
 

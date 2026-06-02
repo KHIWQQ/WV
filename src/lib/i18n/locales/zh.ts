@@ -144,6 +144,7 @@ export const zh: Translations = {
     vehicle: "车辆",
     insurance: "人寿保险",
     ssf_rmf: "SSF/RMF",
+    gpf: "公务员退休金 (GPF)",
     other: "其他",
   },
 

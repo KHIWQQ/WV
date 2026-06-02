@@ -144,6 +144,7 @@ export const en: Translations = {
     vehicle: "Vehicle",
     insurance: "Life Insurance",
     ssf_rmf: "SSF/RMF",
+    gpf: "GPF (Govt Pension Fund)",
     other: "Other",
   },
 

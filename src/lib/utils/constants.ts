@@ -29,6 +29,7 @@ export const ASSET_CATEGORIES = [
   { value: "vehicle", labelKey: "vehicle" as const, color: "#64748b", quantityUnitKey: "vehicle" as const },
   { value: "insurance", labelKey: "insurance" as const, color: "#ec4899", quantityUnitKey: "policy" as const },
   { value: "ssf_rmf", labelKey: "ssf_rmf" as const, color: "#06b6d4", quantityUnitKey: "fundUnit" as const },
+  { value: "gpf", labelKey: "gpf" as const, color: "#0e7490", quantityUnitKey: "fundUnit" as const },
   { value: "other", labelKey: "other" as const, color: "#a1a1aa", quantityUnitKey: "piece" as const },
 ] as const;
 
