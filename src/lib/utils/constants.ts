@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Target,
   Star,
+  Banknote,
   type LucideIcon,
 } from "lucide-react";
 
@@ -218,6 +219,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", labelKey: "overview", icon: LayoutDashboard },
   { href: "/dashboard/assets", labelKey: "assets", icon: Wallet },
   { href: "/dashboard/transactions", labelKey: "transactions", icon: ArrowLeftRight },
+  { href: "/dashboard/salary", labelKey: "salary", icon: Banknote, isPremium: true, featureKey: "salary_management" },
   { href: "/dashboard/liabilities", labelKey: "liabilities", icon: CreditCard, isPremium: true, featureKey: "liabilities" },
   { href: "/dashboard/market", labelKey: "market", icon: TrendingUp },
   { href: "/dashboard/watchlist", labelKey: "watchlist", icon: Star },

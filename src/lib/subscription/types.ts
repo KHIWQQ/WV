@@ -7,6 +7,7 @@ export const PREMIUM_FEATURES = [
   "advanced_market_data",
   "family_sharing",
   "estate_vault",
+  "salary_management",
 ] as const;
 
 export type PremiumFeature = (typeof PREMIUM_FEATURES)[number];
@@ -22,6 +23,7 @@ export const PREMIUM_FEATURE_LABELS: Record<PremiumFeature, string> = {
   advanced_market_data: "ข้อมูลตลาดขั้นสูง (Advanced market data)",
   family_sharing: "แชร์ข้อมูลกับครอบครัว (Family sharing)",
   estate_vault: "วางแผนมรดก (Estate vault)",
+  salary_management: "บริหารเงินเดือน (Salary management)",
 };
 
 /**

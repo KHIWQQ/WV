@@ -7,6 +7,7 @@ export type AuditAction =
   | "transaction.create" | "transaction.update" | "transaction.delete"
   | "tax-export.create"
   | "goal.create" | "goal.update" | "goal.delete"
+  | "salary.create" | "salary.update" | "salary.delete" | "salary.import" | "salary.gpf_update"
   | "watchlist.create" | "watchlist.delete"
   | "watchlist_item.create" | "watchlist_item.delete"
   | "profile.update"
@@ -14,7 +15,7 @@ export type AuditAction =
   | "settings.update"
   | "auth.login" | "auth.logout";
 
-export type EntityType = "asset" | "liability" | "transaction" | "tax-export" | "goal" | "watchlist" | "watchlist_item" | "profile" | "subscription" | "app_settings" | "session";
+export type EntityType = "asset" | "liability" | "transaction" | "tax-export" | "goal" | "salary_record" | "salary_gpf_summary" | "watchlist" | "watchlist_item" | "profile" | "subscription" | "app_settings" | "session";
 
 interface AuditOptions {
   diff?: Record<string, unknown>;

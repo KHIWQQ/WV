@@ -88,6 +88,76 @@ export const transactionServerSchema = z.object({
   date: z.string().min(1),
 });
 
+// ──────────────────────────────
+// Salary Management
+// ──────────────────────────────
+
+// Client map of { deductionKey: amount }. Plain numbers so the zod input and
+// output types match (keeps react-hook-form's Resolver generic happy); the
+// form guarantees numeric, non-NaN values via setValueAs.
+const clientAmountMap = z.record(z.string(), z.number().min(0));
+
+// Server map: coerce strings → numbers, NaN/blank → 0, default empty.
+const serverAmountMap = z
+  .record(z.string(), z.coerce.number().min(0).catch(0))
+  .default({});
+
+// Client-side (react-hook-form): numeric inputs.
+export const salaryRecordSchema = z.object({
+  period: z.string().min(1, "กรุณาเลือกเดือน"),
+  rank: z.string().optional(),
+  pay_step: z.string().optional(),
+  gross_rta: z.number().min(0, "เงินเดือนต้องไม่ติดลบ"),
+  income_tiny: z.number().min(0),
+  income_sckt: z.number().min(0),
+  deductions: clientAmountMap,
+  gov_contrib: clientAmountMap,
+  is_backpay: z.boolean(),
+  note: z.string().optional(),
+});
+
+export type SalaryRecordSchemaType = z.infer<typeof salaryRecordSchema>;
+
+// Server-side: coerce strings → numbers for safety.
+export const salaryRecordServerSchema = z.object({
+  period: z.string().min(1),
+  rank: z.string().optional(),
+  pay_step: z.string().optional(),
+  gross_rta: z.coerce.number().min(0),
+  income_tiny: z.coerce.number().min(0).default(0),
+  income_sckt: z.coerce.number().min(0).default(0),
+  deductions: serverAmountMap,
+  gov_contrib: serverAmountMap,
+  is_backpay: z.coerce.boolean().default(false),
+  note: z.string().optional(),
+});
+
+// Bulk import: an array of records (capped to keep a single request bounded).
+export const salaryImportServerSchema = z
+  .array(salaryRecordServerSchema)
+  .min(1)
+  .max(240);
+
+export const salaryGpfSchema = z.object({
+  own_principal: z.number().min(0),
+  own_gain: z.number().min(0),
+  gov_principal: z.number().min(0),
+  gov_gain: z.number().min(0),
+  atb_balance: z.number().min(0),
+  as_of: z.string().optional(),
+});
+
+export type SalaryGpfSchemaType = z.infer<typeof salaryGpfSchema>;
+
+export const salaryGpfServerSchema = z.object({
+  own_principal: z.coerce.number().min(0).default(0),
+  own_gain: z.coerce.number().min(0).default(0),
+  gov_principal: z.coerce.number().min(0).default(0),
+  gov_gain: z.coerce.number().min(0).default(0),
+  atb_balance: z.coerce.number().min(0).default(0),
+  as_of: z.string().optional(),
+});
+
 // Profile schemas
 export const profileSchema = z.object({
   display_name: z.string().min(1, "กรุณากรอกชื่อ").max(50, "ชื่อยาวเกินไป"),
