@@ -403,6 +403,12 @@ export const th: Translations = {
     exchange: "ตลาด",
     addToWatchlist: "เพิ่มลงรายการโปรด",
     noDataFor: "ไม่พบข้อมูลสำหรับ",
+    proChart: "Pro",
+    liteChart: "Lite",
+    proChartTitle: "กราฟระดับมืออาชีพ (TradingView)",
+    proChartDesc: "เครื่องมือวิเคราะห์ทางเทคนิคแบบเต็ม อินดิเคเตอร์ การวาดเส้น และไทม์เฟรมจาก TradingView",
+    proUnavailable: "สัญลักษณ์นี้ไม่มีกราฟ Pro — แสดงแบบ Lite",
+    poweredByTradingView: "ขับเคลื่อนโดย TradingView",
   },
 
   goals: {

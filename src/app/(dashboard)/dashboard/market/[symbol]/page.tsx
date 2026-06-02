@@ -6,7 +6,7 @@ import { ArrowLeft, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PriceChart } from "@/components/market/price-chart";
+import { MarketChart } from "@/components/market/market-chart";
 import { AddToWatchlistDialog } from "@/components/market/add-to-watchlist-dialog";
 import { useMarketQuote } from "@/hooks/useMarket";
 import { cn } from "@/lib/utils/cn";
@@ -101,7 +101,12 @@ export default function SymbolPage() {
             </div>
           </div>
 
-          <PriceChart symbol={symbol} name={quote.longName || quote.shortName} />
+          <MarketChart
+            symbol={symbol}
+            name={quote.longName || quote.shortName}
+            assetType={quote.assetType}
+            exchange={quote.exchange}
+          />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <InfoCard label={t.market.volume} value={quote.volume?.toLocaleString("th-TH") ?? "-"} />

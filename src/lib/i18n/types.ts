@@ -426,6 +426,12 @@ export interface Translations {
     exchange: string;
     addToWatchlist: string;
     noDataFor: string;
+    proChart: string;
+    liteChart: string;
+    proChartTitle: string;
+    proChartDesc: string;
+    proUnavailable: string;
+    poweredByTradingView: string;
   };
 
   // Goals

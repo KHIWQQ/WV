@@ -403,6 +403,12 @@ export const zh: Translations = {
     exchange: "交易所",
     addToWatchlist: "添加到关注列表",
     noDataFor: "未找到数据：",
+    proChart: "Pro",
+    liteChart: "Lite",
+    proChartTitle: "专业图表 (TradingView)",
+    proChartDesc: "完整的技术分析工具 — 来自 TradingView 的指标、绘图工具和时间周期。",
+    proUnavailable: "该标的无 Pro 图表 — 显示 Lite。",
+    poweredByTradingView: "由 TradingView 提供支持",
   },
 
   goals: {
