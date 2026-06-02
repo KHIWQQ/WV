@@ -2,6 +2,16 @@ export type { Asset, AssetFormData } from "./asset";
 export type { Liability, LiabilityFormData } from "./liability";
 export type { Goal } from "./goal";
 export type {
+  SalaryRecord,
+  SalaryRecordFormData,
+  SalaryGpfSummary,
+  SalaryGpfFormData,
+  SalaryBreakdownItem,
+  SalaryTrendPoint,
+  SalarySummary,
+  SalaryImportResult,
+} from "./salary";
+export type {
   Transaction,
   TransactionFormData,
   PeriodView,

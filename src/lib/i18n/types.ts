@@ -72,10 +72,118 @@ export interface Translations {
     goals: string;
     portfolio: string;
     retirement: string;
+    salary: string;
     adminSystem: string;
     userManagement: string;
     featureFlags: string;
     mainMenu: string;
+  };
+
+  // Salary management
+  salary: {
+    title: string;
+    subtitle: string;
+    addRecord: string;
+    editRecord: string;
+    added: string;
+    edited: string;
+    deleted: string;
+    addError: string;
+    editError: string;
+    deleteError: string;
+    gpfSaved: string;
+    gpfSaveError: string;
+    // Tabs
+    ledgerTab: string;
+    breakdownTab: string;
+    gpfTab: string;
+    importTab: string;
+    // Fields
+    month: string;
+    rank: string;
+    payStep: string;
+    payStepExample: string;
+    grossRta: string;
+    netRta: string;
+    totalDeductions: string;
+    extraIncome: string;
+    note: string;
+    noteExample: string;
+    backpay: string;
+    backpayBadge: string;
+    selectRank: string;
+    // Sections in the form
+    incomeSection: string;
+    deductionsSection: string;
+    govContribSection: string;
+    govContribHint: string;
+    // Stat cards
+    grandTotal: string;
+    grandTotalHint: string;
+    totalGrossLabel: string;
+    totalNetLabel: string;
+    totalDeductionsLabel: string;
+    currentGpf: string;
+    monthsTracked: string;
+    ownGpfContributed: string;
+    govGpfContributed: string;
+    // Charts
+    monthlyTrend: string;
+    deductionBreakdown: string;
+    incomeBreakdown: string;
+    // GPF snapshot
+    gpfTitle: string;
+    gpfSubtitle: string;
+    ownPortion: string;
+    govPortion: string;
+    principal: string;
+    gain: string;
+    subtotal: string;
+    atbBalance: string;
+    asOf: string;
+    editGpf: string;
+    gpfTotal: string;
+    gpfEmpty: string;
+    linkedAsset: string;
+    // Import
+    importTitle: string;
+    importDesc: string;
+    importHint: string;
+    selectFile: string;
+    importing: string;
+    importDone: string;
+    importError: string;
+    downloadTemplate: string;
+    noRecords: string;
+    // Nested taxonomies
+    streams: {
+      rta: string;
+      tiny: string;
+      sckt: string;
+    };
+    deductions: {
+      kbkk_save: string;
+      kbkk_extra: string;
+      atb_deposit: string;
+      funeral: string;
+      coop: string;
+      atb_s: string;
+      cyber: string;
+      yutthakoste: string;
+      magazine: string;
+    };
+    govContrib: {
+      kbkk_match: string;
+      kbkk_compensate: string;
+    };
+    ranks: {
+      "2nd_lieutenant": string;
+      "1st_lieutenant": string;
+      captain: string;
+      major: string;
+      lieutenant_colonel: string;
+      colonel: string;
+    };
   };
 
   // Dashboard
