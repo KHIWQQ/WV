@@ -187,7 +187,7 @@ export function AssetFormDialog({ open, onOpenChange, asset }: AssetFormDialogPr
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 min-h-0 gap-4"
         >
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 -mr-2 pr-2">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 -mx-2 px-2">
           <div className="space-y-2">
             <Label>{t.assets.category}</Label>
             <Select
