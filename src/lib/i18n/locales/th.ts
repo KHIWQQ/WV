@@ -144,6 +144,7 @@ export const th: Translations = {
     vehicle: "รถยนต์",
     insurance: "ประกันชีวิต",
     ssf_rmf: "SSF/RMF",
+    gpf: "กบข. (บำนาญข้าราชการ)",
     other: "อื่นๆ",
   },
 
