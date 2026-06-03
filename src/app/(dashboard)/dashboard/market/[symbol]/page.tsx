@@ -101,12 +101,7 @@ export default function SymbolPage() {
             </div>
           </div>
 
-          <MarketChart
-            symbol={symbol}
-            name={quote.longName || quote.shortName}
-            assetType={quote.assetType}
-            exchange={quote.exchange}
-          />
+          <MarketChart symbol={symbol} name={quote.longName || quote.shortName} />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <InfoCard label={t.market.volume} value={quote.volume?.toLocaleString("th-TH") ?? "-"} />

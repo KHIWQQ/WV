@@ -23,19 +23,25 @@ const baseConfig = {
 };
 
 function createLogger(): Logger {
-  if (isEdge) {
+  if (isEdge || isProd) {
     return pino(baseConfig);
   }
-  if (isProd) {
+  // Dev: render pretty logs through an in-process pino-pretty stream rather
+  // than a `transport` worker thread. Under Next.js dev the worker thread can
+  // exit, after which every logger call throws "the worker has exited" and
+  // turns into an uncaughtException (a logged error then 500s the request).
+  // An in-process stream sidesteps that entirely.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pretty = require("pino-pretty");
+    return pino(
+      baseConfig,
+      pretty({ colorize: true, translateTime: "SYS:HH:MM:ss", ignore: "pid,hostname" })
+    );
+  } catch {
+    // pino-pretty unavailable → plain JSON to stdout, still no worker thread.
     return pino(baseConfig);
   }
-  return pino({
-    ...baseConfig,
-    transport: {
-      target: "pino-pretty",
-      options: { colorize: true, translateTime: "SYS:HH:MM:ss" },
-    },
-  });
 }
 
 export const logger = createLogger();

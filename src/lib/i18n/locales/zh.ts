@@ -405,10 +405,8 @@ export const zh: Translations = {
     noDataFor: "未找到数据：",
     proChart: "Pro",
     liteChart: "Lite",
-    proChartTitle: "专业图表 (TradingView)",
-    proChartDesc: "完整的技术分析工具 — 来自 TradingView 的指标、绘图工具和时间周期。",
-    proUnavailable: "该标的无 Pro 图表 — 显示 Lite。",
-    poweredByTradingView: "由 TradingView 提供支持",
+    proChartTitle: "专业K线图",
+    proChartDesc: "K线图配十字光标和多种时间周期，用于深入分析价格。",
   },
 
   goals: {
