@@ -183,11 +183,19 @@ export async function gatewayQuote(
     try {
       cryptoQuotes = await coingeckoProvider.quote(uncachedCrypto);
     } catch {
-      // CoinGecko failed, try Yahoo for crypto
+      cryptoQuotes = [];
+    }
+    // CoinGecko only knows a fixed coin list — for any symbol it didn't return
+    // (it yields [] rather than throwing), fall back to Yahoo so less-common
+    // coins still resolve.
+    const resolved = new Set(cryptoQuotes.map((q) => q.symbol));
+    const missingCrypto = uncachedCrypto.filter((s) => !resolved.has(s));
+    if (missingCrypto.length > 0) {
       try {
-        cryptoQuotes = await yahooProvider.quote(uncachedCrypto);
+        const yahooCrypto = await yahooProvider.quote(missingCrypto);
+        cryptoQuotes = [...cryptoQuotes, ...yahooCrypto];
       } catch {
-        // Both failed
+        // Yahoo fallback failed — keep whatever CoinGecko returned
       }
     }
 
@@ -251,7 +259,12 @@ export async function gatewayHistory(
       history = await coingeckoProvider.history(symbol, range);
       provider = "coingecko";
     } catch {
-      // Fallback to Yahoo
+      history = [];
+    }
+    // CoinGecko only covers a fixed coin list and returns [] (no throw) for
+    // anything else — fall back to Yahoo on empty too, not just on error.
+    // Yahoo also carries full OHLC, so these render as candlesticks.
+    if (history.length === 0) {
       try {
         history = await yahooProvider.history(symbol, range);
         provider = "yahoo";

@@ -430,8 +430,6 @@ export interface Translations {
     liteChart: string;
     proChartTitle: string;
     proChartDesc: string;
-    proUnavailable: string;
-    poweredByTradingView: string;
   };
 
   // Goals

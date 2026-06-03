@@ -405,10 +405,8 @@ export const en: Translations = {
     noDataFor: "No data found for",
     proChart: "Pro",
     liteChart: "Lite",
-    proChartTitle: "Professional chart (TradingView)",
-    proChartDesc: "Full technical-analysis toolkit — indicators, drawing tools, and timeframes from TradingView.",
-    proUnavailable: "No Pro chart for this symbol — showing Lite.",
-    poweredByTradingView: "Powered by TradingView",
+    proChartTitle: "Professional candlestick chart",
+    proChartDesc: "Candlesticks with crosshair and multiple timeframes for in-depth price analysis.",
   },
 
   goals: {

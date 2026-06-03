@@ -405,10 +405,8 @@ export const th: Translations = {
     noDataFor: "ไม่พบข้อมูลสำหรับ",
     proChart: "Pro",
     liteChart: "Lite",
-    proChartTitle: "กราฟระดับมืออาชีพ (TradingView)",
-    proChartDesc: "เครื่องมือวิเคราะห์ทางเทคนิคแบบเต็ม อินดิเคเตอร์ การวาดเส้น และไทม์เฟรมจาก TradingView",
-    proUnavailable: "สัญลักษณ์นี้ไม่มีกราฟ Pro — แสดงแบบ Lite",
-    poweredByTradingView: "ขับเคลื่อนโดย TradingView",
+    proChartTitle: "กราฟแท่งเทียนระดับมืออาชีพ",
+    proChartDesc: "กราฟแท่งเทียนพร้อม crosshair และหลายไทม์เฟรม สำหรับวิเคราะห์ราคาเชิงลึก",
   },
 
   goals: {
